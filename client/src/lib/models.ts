@@ -66,7 +66,7 @@ export const modelGroups: ProviderGroup[] = [
   }
 ];
 
-export const DEFAULT_MODEL = "claude-3-7-sonnet";
+export const DEFAULT_MODEL = "gpt-4o-mini";
 
 export function getModelById(id: string): AIModel | undefined {
   for (const group of modelGroups) {

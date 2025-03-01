@@ -34,12 +34,15 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   const insertText = (text: string) => {
     setMessage(prev => {
       const position = textareaRef.current?.selectionStart || prev.length;
-      return prev.slice(0, position) + text + prev.slice(position);
+      const newMessage = prev.slice(0, position) + text + prev.slice(position);
+      return newMessage;
     });
 
     // Focus the textarea after inserting
     setTimeout(() => {
-      textareaRef.current?.focus();
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
     }, 0);
   };
 

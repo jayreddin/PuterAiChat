@@ -26,11 +26,6 @@ export function UtilityBar() {
     { icon: FileUp, label: "Upload File" },
     { icon: Globe, label: "Web Address" },
     { icon: Brain, label: "Deep Think" },
-    { 
-      icon: Code2, 
-      label: "Insert Code",
-      onClick: () => document.getElementById('code-dialog-trigger')?.click()
-    },
     { icon: Settings, label: "Settings" },
     { icon: History, label: "History" },
   ];
@@ -38,14 +33,10 @@ export function UtilityBar() {
   return (
     <div className="flex gap-2 items-center">
       <TooltipProvider>
-        {tools.map(({ icon: Icon, label, onClick }) => (
+        {tools.map(({ icon: Icon, label }) => (
           <Tooltip key={label}>
             <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={onClick}
-              >
+              <Button variant="ghost" size="icon">
                 <Icon className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -54,8 +45,15 @@ export function UtilityBar() {
             </TooltipContent>
           </Tooltip>
         ))}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <CodeInputDialog onInsert={text => insertText?.(text)} />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Insert Code</p>
+          </TooltipContent>
+        </Tooltip>
       </TooltipProvider>
-      <CodeInputDialog onInsert={text => insertText?.(text)} />
     </div>
   );
 }
