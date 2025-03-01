@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useState, forwardRef } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Code2 } from "lucide-react";
 // Assuming CodeEditor needs forwardRef.  This is a best guess without seeing its implementation
@@ -33,7 +33,7 @@ interface CodeInputDialogProps {
   onInsert: (text: string) => void;
 }
 
-export function CodeInputDialog({ onInsert }: CodeInputDialogProps) {
+export const CodeInputDialog = forwardRef<HTMLDivElement>((props, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
@@ -80,7 +80,13 @@ export function CodeInputDialog({ onInsert }: CodeInputDialogProps) {
             language={language}
           />
         </div>
+        <DialogFooter className="mt-4 gap-2">
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave}>Insert</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+});
