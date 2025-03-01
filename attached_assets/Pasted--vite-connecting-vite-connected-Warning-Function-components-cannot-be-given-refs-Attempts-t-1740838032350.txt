@@ -1,0 +1,61 @@
+[vite] connecting...
+[vite] connected.
+Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
+
+Check the render method of `SlotClone`.
+    at CodeInputDialog (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/components/chat/code-input-dialog.tsx:46:35)
+    at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=bd008b70:52:11
+    at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=bd008b70:33:11
+    at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-J37UDW3T.js?v=bd008b70:41:13
+    at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=bd008b70:52:11
+    at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=bd008b70:33:11
+    at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-J37UDW3T.js?v=bd008b70:41:13
+    at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P2B25GHE.js?v=bd008b70:1980:13
+    at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bd008b70:185:13
+    at Provider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-L7FCK3EQ.js?v=bd008b70:48:15)
+    at Provider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P2B25GHE.js?v=bd008b70:1915:15)
+    at Popper (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P2B25GHE.js?v=bd008b70:1972:11)
+    at Tooltip (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bd008b70:103:5)
+    at Provider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-L7FCK3EQ.js?v=bd008b70:48:15)
+    at TooltipProvider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bd008b70:59:5)
+    at div
+    at UtilityBar (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/components/chat/utility-bar.tsx:38:26)
+    at footer
+    at div
+    at ChatPage (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/pages/chat.tsx:26:43)
+    at Route (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=bd008b70:323:16)
+    at Switch (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=bd008b70:379:17)
+    at Router
+    at QueryClientProvider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=bd008b70:2805:3)
+    at App
+
+Check the render method of &#x60;SlotClone&#x60;.
+at CodeInputDialog (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/components/chat/code-input-dialog.tsx:46:35)
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=bd008b70:52:11
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=bd008b70:33:11
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-J37UDW3T.js?v=bd008b70:41:13
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=bd008b70:52:11
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=bd008b70:33:11
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-J37UDW3T.js?v=bd008b70:41:13
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P2B25GHE.js?v=bd008b70:1980:13
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bd008b70:185:13
+at Provider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-L7FCK3EQ.js?v=bd008b70:48:15)
+at Provider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P2B25GHE.js?v=bd008b70:1915:15)
+at Popper (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-P2B25GHE.js?v=bd008b70:1972:11)
+at Tooltip (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bd008b70:103:5)
+at Provider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-L7FCK3EQ.js?v=bd008b70:48:15)
+at TooltipProvider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=bd008b70:59:5)
+at div
+at UtilityBar (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/components/chat/utility-bar.tsx:38:26)
+at footer
+at div
+at ChatPage (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/pages/chat.tsx:26:43)
+at Route (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=bd008b70:323:16)
+at Switch (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=bd008b70:379:17)
+at Router
+at QueryClientProvider (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=bd008b70:2805:3)
+at App
+at t.value (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
