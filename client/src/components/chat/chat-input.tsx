@@ -1,4 +1,4 @@
-import { useState, useRef, KeyboardEvent } from "react";
+import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,11 +8,30 @@ import { ChatInputContext } from "@/contexts/chat-input-context";
 interface ChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
+  initialMessage?: string | null;
+  onMessageUsed?: () => void;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, initialMessage, onMessageUsed }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // When initialMessage changes and is not null, update the message state
+  useEffect(() => {
+    if (initialMessage) {
+      setMessage(initialMessage);
+      
+      // Focus the textarea
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+      
+      // Notify parent that we've used the initialMessage
+      if (onMessageUsed) {
+        onMessageUsed();
+      }
+    }
+  }, [initialMessage, onMessageUsed]);
 
   const handleSubmit = () => {
     if (message.trim() && !disabled) {

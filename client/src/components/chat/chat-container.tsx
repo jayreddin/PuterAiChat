@@ -15,8 +15,9 @@ interface ChatContainerProps {
 export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
   const [isTyping, setIsTyping] = useState(false);
   const [isPuterInitialized, setIsPuterInitialized] = useState(false);
+  const [editingMessage, setEditingMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const model = getModelById(conversation.model);
+  const model = getModelById(conversation.modelId);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -146,7 +147,7 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
   };
 
   const handleEdit = (messageContent: string) => {
-    handleSend(messageContent);
+    setEditingMessage(messageContent); //Added this line
   };
 
   return (
@@ -176,6 +177,7 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
       <ChatInput
         onSend={handleSend}
         disabled={isTyping || !isPuterInitialized}
+        editingMessage={editingMessage} //Pass editingMessage to ChatInput
       />
     </div>
   );
