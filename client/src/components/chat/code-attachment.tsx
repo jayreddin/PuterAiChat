@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { CodeAttachment } from "./code-input-dialog";
 import { Button } from "@/components/ui/button";
@@ -8,11 +7,11 @@ import { cn } from "@/lib/utils";
 
 export const CodeAttachmentList = () => {
   const { codeAttachments, removeCodeAttachment, openCodeEditor } = useChatInput();
-  
+
   if (!codeAttachments || codeAttachments.length === 0) {
     return null;
   }
-  
+
   return (
     <div className="flex flex-wrap gap-2 pb-2">
       {codeAttachments.map((attachment, index) => (
@@ -49,14 +48,14 @@ interface CodeAttachmentProps {
 export function CodeAttachmentItem({ attachment, index }: CodeAttachmentProps) {
   const { removeCodeAttachment, editCodeAttachment } = useChatInput();
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Get a preview of the code (first 2 lines)
   const getPreview = () => {
     const lines = attachment.code.split('\n');
     if (lines.length <= 2) return attachment.code;
     return lines.slice(0, 2).join('\n') + (lines.length > 2 ? '...' : '');
   };
-  
+
   return (
     <div className="relative group rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-2 mb-2">
       <div 
@@ -78,7 +77,7 @@ export function CodeAttachmentItem({ attachment, index }: CodeAttachmentProps) {
               Click to {isExpanded ? 'collapse' : 'edit'}
             </span>
           </div>
-          
+
           <pre 
             className={cn(
               "font-mono text-sm mt-1 overflow-x-auto",
@@ -93,7 +92,7 @@ export function CodeAttachmentItem({ attachment, index }: CodeAttachmentProps) {
           </pre>
         </div>
       </div>
-      
+
       <Button
         variant="ghost" 
         size="icon" 
@@ -105,24 +104,6 @@ export function CodeAttachmentItem({ attachment, index }: CodeAttachmentProps) {
       >
         <X className="h-4 w-4" />
       </Button>
-    </div>
-  );
-}
-
-export function CodeAttachmentList() {
-  const { codeAttachments } = useChatInput();
-  
-  if (codeAttachments.length === 0) return null;
-  
-  return (
-    <div className="mb-2">
-      {codeAttachments.map((attachment, index) => (
-        <CodeAttachmentItem 
-          key={index} 
-          attachment={attachment} 
-          index={index} 
-        />
-      ))}
     </div>
   );
 }

@@ -5,6 +5,8 @@ interface ChatInputContextType {
   codeAttachments: CodeAttachment[];
   addCodeAttachment: (attachment: CodeAttachment) => void;
   removeCodeAttachment: (index: number) => void;
+  editCodeAttachment: (index: number) => void;
+  clearCodeAttachments: () => void;
   openCodeEditor: (attachment: CodeAttachment, index: number) => void;
 }
 
@@ -20,6 +22,15 @@ export const ChatInputProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const removeCodeAttachment = (index: number) => {
     setCodeAttachments((prev) => prev.filter((_, i) => i !== index));
   };
+  
+  const editCodeAttachment = (index: number) => {
+    console.log("Editing code attachment at index", index);
+    // Will be implemented to edit an existing attachment
+  };
+  
+  const clearCodeAttachments = () => {
+    setCodeAttachments([]);
+  };
 
   const openCodeEditor = (attachment: CodeAttachment, index: number) => {
     // This will be implemented to open the code editor with the selected attachment
@@ -32,6 +43,8 @@ export const ChatInputProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       codeAttachments, 
       addCodeAttachment, 
       removeCodeAttachment,
+      editCodeAttachment,
+      clearCodeAttachments,
       openCodeEditor
     }}>
       {children}

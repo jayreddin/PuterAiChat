@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import { UtilityBar } from "./utility-bar";
-import { ChatInputContext } from "@/contexts/chat-input-context";
+import { useChatInput } from "@/contexts/chat-input-context";
 import { CodeAttachmentList } from "./code-attachment";
 
 interface ChatInputProps {
@@ -14,13 +14,14 @@ interface ChatInputProps {
 export function ChatInput({ onSend, isThinking = false }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { setInputRef, codeAttachments, clearCodeAttachments } = useContext(ChatInputContext);
+  const { codeAttachments, clearCodeAttachments } = useChatInput();
 
   useEffect(() => {
+    // Focus the textarea when component mounts
     if (textareaRef.current) {
-      setInputRef(textareaRef.current);
+      textareaRef.current.focus();
     }
-  }, [setInputRef]);
+  }, []);
 
   const handleSend = () => {
     if ((message.trim() || codeAttachments.length > 0) && !isThinking) {
