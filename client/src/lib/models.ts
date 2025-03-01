@@ -23,8 +23,7 @@ export const modelGroups: ProviderGroup[] = [
     models: [
       { id: "gpt-4o-mini", name: "GPT-4 Mini", provider: "OpenAI" },
       { id: "gpt-4o", name: "GPT-4", provider: "OpenAI" },
-      { id: "o3-mini", name: "O3 Mini", provider: "OpenAI" },
-      { id: "o1-mini", name: "O1 Mini", provider: "OpenAI" }
+      { id: "o3-mini", name: "O3 Mini", provider: "OpenAI" }
     ]
   },
   {
@@ -32,6 +31,7 @@ export const modelGroups: ProviderGroup[] = [
     icon: SiOpenai, // Using OpenAI icon as placeholder
     color: "text-blue-500",
     models: [
+      { id: "claude-3-7-sonnet", name: "Claude 3.7 Sonnet", provider: "Anthropic" },
       { id: "claude-3-5-sonnet", name: "Claude 3.5 Sonnet", provider: "Anthropic" }
     ]
   },
@@ -45,34 +45,11 @@ export const modelGroups: ProviderGroup[] = [
     ]
   },
   {
-    name: "Meta",
-    icon: SiMeta,
-    color: "text-blue-600",
-    models: [
-      { 
-        id: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-        name: "Llama 3.1 8B Turbo",
-        provider: "Together.ai"
-      },
-      {
-        id: "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-        name: "Llama 3.1 70B Turbo",
-        provider: "Together.ai"
-      },
-      {
-        id: "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
-        name: "Llama 3.1 405B Turbo",
-        provider: "Together.ai"
-      }
-    ]
-  },
-  {
     name: "Mistral AI",
     icon: SiOpenai, // Using OpenAI icon as placeholder
     color: "text-purple-500",
     models: [
       { id: "mistral-large-latest", name: "Mistral Large", provider: "Mistral AI" },
-      { id: "pixtral-large-latest", name: "Pixtral Large", provider: "Mistral AI" },
       { id: "codestral-latest", name: "Codestral", provider: "Mistral AI" }
     ]
   },
@@ -89,7 +66,7 @@ export const modelGroups: ProviderGroup[] = [
   }
 ];
 
-export const DEFAULT_MODEL = "claude-3-5-sonnet";
+export const DEFAULT_MODEL = "claude-3-7-sonnet";
 
 export function getModelById(id: string): AIModel | undefined {
   for (const group of modelGroups) {
@@ -100,7 +77,7 @@ export function getModelById(id: string): AIModel | undefined {
 }
 
 export function getProviderGroupForModel(id: string): ProviderGroup | undefined {
-  return modelGroups.find(group => 
+  return modelGroups.find(group =>
     group.models.some(model => model.id === id)
   );
 }
