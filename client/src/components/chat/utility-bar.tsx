@@ -15,11 +15,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CodeInputDialog } from "./code-input-dialog";
-import { useContext } from "react";
-import { ChatInputContext } from "@/contexts/chat-input-context";
+import { useChatInputContext } from "@/contexts/chat-input-context";
 
 export function UtilityBar() {
-  const { insertText } = useContext(ChatInputContext);
+  const { insertText } = useChatInputContext();
 
   const tools = [
     { icon: Image, label: "Upload Image" },
@@ -47,7 +46,7 @@ export function UtilityBar() {
         ))}
         <Tooltip>
           <TooltipTrigger asChild>
-            <CodeInputDialog onInsert={text => insertText?.(text)} />
+            <CodeInputDialog onInsert={insertText} />
           </TooltipTrigger>
           <TooltipContent>
             <p>Insert Code</p>

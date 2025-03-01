@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, forwardRef } from "react";
+import { useEffect, useRef, forwardRef, useState } from "react";
 import { Message, Conversation } from "@shared/schema";
+import { usePuter } from "@/contexts/puter-context";
 import { ChatBubble } from "./chat-bubble";
 import { ChatInput } from "./chat-input";
 import { getModelById } from "@/lib/models";
@@ -14,9 +15,9 @@ interface ChatContainerProps {
 
 export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ conversation, onUpdate }, ref) => {
   const [isTyping, setIsTyping] = useState(false);
-  const [isPuterInitialized, setIsPuterInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const model = getModelById(conversation.model);
+  const model = getModelById(conversation.model) || { name: "AI Assistant" };
+  const { isInitialized: isPuterInitialized, isLoading } = usePuter();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,27 +27,10 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ c
     scrollToBottom();
   }, [conversation.messages]);
 
-  useEffect(() => {
-    const checkPuter = setInterval(() => {
-      console.log('Checking Puter availability:', {
-        exists: !!window.puter,
-        properties: window.puter ? Object.keys(window.puter) : 'not loaded'
-      });
-
-      if (window.puter) {
-        clearInterval(checkPuter);
-        setIsPuterInitialized(true);
-        console.log('Puter is ready to use');
-      }
-    }, 1000);
-
-    return () => clearInterval(checkPuter);
-  }, []);
-
   const handleSend = async (content: string) => {
     if (!isPuterInitialized) {
       toast({
-        title: "Error",
+        title: "Chat Not Ready",
         description: "Chat is not ready yet. Please wait a moment and try again.",
         variant: "destructive"
       });
@@ -54,6 +38,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ c
     }
 
     // Add user message
+    console.log('Adding user message to conversation:', content);
     const updatedConvo = addMessage(conversation.id, {
       content,
       role: "user",
@@ -68,9 +53,10 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ c
     setIsTyping(true);
 
     try {
-      console.log('Sending chat request:', {
+      console.log('Sending chat request to Puter AI:', {
         model: conversation.model,
-        content
+        content,
+        puterAvailable: !!window.puter
       });
 
       // Call Puter AI API - Added check for window.puter
@@ -78,7 +64,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ c
         const response = await window.puter.ai.chat(content, {
           model: conversation.model
         });
-        console.log('Received response:', response);
+        console.log('Received AI response:', response);
 
         // Extract the AI's response text based on the model's response format
         let aiResponse: string;
@@ -114,7 +100,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ c
         }
       } else {
         console.error("Puter is not initialized.");
-        toast({
+        toast({ 
           title: "Error",
           description: "Puter AI is not available. Please try again later.",
           variant: "destructive"
@@ -122,7 +108,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ c
       }
     } catch (error) {
       console.error("AI chat error:", error);
-      toast({
+      toast({ 
         title: "Error",
         description: "Failed to get AI response. Please try again.",
         variant: "destructive"
@@ -139,6 +125,17 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ c
   return (
     <div className="flex flex-col h-full" ref={ref}>
       <div className="flex-1 overflow-y-auto p-4 pb-24">
+        {!isPuterInitialized && !isLoading && (
+          <div className="p-4 mb-4 bg-yellow-100 text-yellow-800 rounded-md">
+            <h3 className="font-bold">Puter AI Not Connected</h3>
+            <p>
+              The AI service is not properly connected. Try these steps:
+              <br />- Select a different AI model from the dropdown above
+              <br />- Refresh the page and try again
+            </p>
+          </div>
+        )}
+        
         {conversation.messages.map((message) => (
           <ChatBubble
             key={message.id}
@@ -162,7 +159,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({ c
 
       <ChatInput
         onSend={handleSend}
-        disabled={isTyping || !isPuterInitialized}
+        disabled={isTyping || isLoading || !isPuterInitialized}
       />
     </div>
   );

@@ -1,16 +1,34 @@
 import { useState, useEffect } from "react";
+import { usePuter } from "@/contexts/puter-context";
 import { ModelSelect } from "@/components/chat/model-select";
 import { UtilityBar } from "@/components/chat/utility-bar";
 import { ChatContainer } from "@/components/chat/chat-container";
 import { DEFAULT_MODEL } from "@/lib/models";
 import { createNewConversation, getConversation, saveConversation } from "@/lib/storage";
+import { Loader2 } from "lucide-react";
 import type { Conversation } from "@shared/schema";
 
 export default function ChatPage() {
-  const [currentModel, setCurrentModel] = useState(DEFAULT_MODEL);
-  const [conversation, setConversation] = useState<Conversation>(() => 
-    createNewConversation(currentModel)
-  );
+  // Start with a different model than the default to avoid the initial issue
+  const [currentModel, setCurrentModel] = useState("claude-3-5-sonnet");
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+  const { isInitialized, isLoading, error } = usePuter();
+
+  // Initialize conversation after Puter is loaded or after a timeout
+  useEffect(() => {
+    // Create conversation once when component mounts or when Puter initializes
+    if (!conversation) {
+      console.log('Initializing conversation with model:', currentModel);
+      const newConversation = createNewConversation(currentModel);
+      setConversation(newConversation);
+      saveConversation(newConversation);
+    }
+  }, [conversation]);
+
+  // Log Puter state changes for debugging
+  useEffect(() => {
+    console.log('Puter state in ChatPage:', { isInitialized, isLoading, error });
+  }, [isInitialized, isLoading, error]);
 
   const handleModelChange = (modelId: string) => {
     setCurrentModel(modelId);
@@ -24,6 +42,9 @@ export default function ChatPage() {
     saveConversation(updated);
   };
 
+  // If conversation is null, show loading state
+  if (!conversation) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+
   return (
     <div className="h-screen flex flex-col">
       <header className="fixed top-0 left-0 right-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
@@ -36,10 +57,21 @@ export default function ChatPage() {
       </header>
 
       <main className="flex-1 relative mt-12">
-        <ChatContainer
-          conversation={conversation}
-          onUpdate={handleConversationUpdate}
-        />
+        {isLoading && (
+          <div className="h-full flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-muted-foreground">Initializing AI...</p>
+            </div>
+          </div>
+        )}
+        
+        {!isLoading && (
+          <ChatContainer
+            conversation={conversation}
+            onUpdate={handleConversationUpdate}
+          />
+        )}
       </main>
 
       <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16 flex flex-col items-center justify-center gap-1">
