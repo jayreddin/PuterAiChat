@@ -6,6 +6,41 @@ import { X } from "lucide-react";
 import { useChatInput } from "@/contexts/chat-input-context";
 import { cn } from "@/lib/utils";
 
+export const CodeAttachmentList = () => {
+  const { codeAttachments, removeCodeAttachment, openCodeEditor } = useChatInput();
+  
+  if (!codeAttachments || codeAttachments.length === 0) {
+    return null;
+  }
+  
+  return (
+    <div className="flex flex-wrap gap-2 pb-2">
+      {codeAttachments.map((attachment, index) => (
+        <div 
+          key={index}
+          className="flex items-center gap-1 bg-secondary p-1 rounded cursor-pointer"
+          onClick={() => openCodeEditor(attachment, index)}
+        >
+          <div className="text-xs font-mono truncate max-w-[150px]">
+            {attachment.language}: {attachment.code.substring(0, 20)}...
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-5 w-5 p-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              removeCodeAttachment(index);
+            }}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 interface CodeAttachmentProps {
   attachment: CodeAttachment;
   index: number;

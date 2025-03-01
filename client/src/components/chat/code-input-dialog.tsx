@@ -1,4 +1,3 @@
-
 import React, { forwardRef, useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -58,21 +57,21 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
-  
+
   // Use local storage for persistent settings
   const [settings, setSettings] = useLocalStorage<CodeSettings>(
     "code-input-settings",
     DEFAULT_SETTINGS
   );
-  
+
   // Temporary settings for the settings dialog
   const [tempSettings, setTempSettings] = useState<CodeSettings>(settings);
-  
+
   // Update language when settings change
   useEffect(() => {
     setLanguage(settings.defaultLanguage);
   }, [settings.defaultLanguage]);
-  
+
   // Auto-detect language if enabled
   useEffect(() => {
     if (code && settings.autoDetectLanguage) {
@@ -90,13 +89,13 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
       setOpen(false);
     }
   };
-  
+
   const openSettingsDialog = (e: React.MouseEvent) => {
     e.stopPropagation();
     setTempSettings({...settings});
     setSettingsOpen(true);
   };
-  
+
   const saveSettings = () => {
     setSettings(tempSettings);
     setSettingsOpen(false);
@@ -118,7 +117,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
               Add a code snippet to your message
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="flex-grow overflow-hidden my-4">
             <Editor
               height="30vh"
@@ -131,7 +130,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
               }}
             />
           </div>
-          
+
           <DialogFooter className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Select value={language} onValueChange={setLanguage}>
@@ -146,7 +145,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
                   ))}
                 </SelectContent>
               </Select>
-              
+
               <Button 
                 variant="outline" 
                 size="icon" 
@@ -155,12 +154,12 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <Button onClick={handleCodeSubmit}>Insert Code</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Settings Dialog */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="sm:max-w-[500px]">
@@ -170,7 +169,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
               Configure code input preferences
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="defaultLanguage">Default Code Type</Label>
@@ -190,7 +189,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <Label htmlFor="autoDetectLanguage" className="flex-grow">
                 Auto Code Type Recognition
@@ -201,7 +200,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
                 onCheckedChange={(checked) => setTempSettings({...tempSettings, autoDetectLanguage: checked})}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <Label htmlFor="usePrettier" className="flex-grow">
                 Prettier Formatting
@@ -212,7 +211,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
                 onCheckedChange={(checked) => setTempSettings({...tempSettings, usePrettier: checked})}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <Label htmlFor="useAIComments" className="flex-grow">
                 AI Code Comments
@@ -224,7 +223,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setSettingsOpen(false)}>
               Cancel

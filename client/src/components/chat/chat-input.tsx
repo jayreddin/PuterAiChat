@@ -67,7 +67,7 @@ export function ChatInput({ onSend, isThinking = false }: ChatInputProps) {
         <Button
           size="icon"
           onClick={handleSend}
-          disabled={(message.trim() === "" && codeAttachments.length === 0) || isThinking}
+          disabled={(message.trim() === "" && (codeAttachments?.length === 0 || !codeAttachments)) || isThinking}
         >
           <Send className="h-5 w-5" />
         </Button>
