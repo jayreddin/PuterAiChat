@@ -92,25 +92,26 @@ interface CodeInputButtonProps {
 }
 
 // Component for the code input button in the utility bar
-export function CodeInputButton({ onInsert }: CodeInputButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [code, setCode] = useState("");
-  const [language, setLanguage] = useState("javascript");
+export const CodeInputButton = forwardRef<HTMLButtonElement, CodeInputButtonProps>(
+  ({ onInsert }, ref) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [code, setCode] = useState("");
+    const [language, setLanguage] = useState("javascript");
 
-  const handleSave = () => {
-    const formattedCode = `\`\`\`${language}\n${code}\n\`\`\``;
-    onInsert(formattedCode);
-    setIsOpen(false);
-    setCode("");
-  };
+    const handleSave = () => {
+      const formattedCode = `\`\`\`${language}\n${code}\n\`\`\``;
+      onInsert(formattedCode);
+      setIsOpen(false);
+      setCode("");
+    };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="hover:bg-muted">
-          <Code2 className="h-5 w-5" />
-        </Button>
-      </DialogTrigger>
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button ref={ref} variant="ghost" size="icon" className="hover:bg-muted">
+            <Code2 className="h-5 w-5" />
+          </Button>
+        </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] h-[600px]">
         <DialogHeader>
           <DialogTitle>Insert Code</DialogTitle>
@@ -152,3 +153,7 @@ export function CodeInputButton({ onInsert }: CodeInputButtonProps) {
 }
 
 export default CodeInputDialog;
+
+
+// Important to set displayName for debugging
+CodeInputButton.displayName = "CodeInputButton";
