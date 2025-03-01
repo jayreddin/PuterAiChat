@@ -33,24 +33,45 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
         properties: window.puter ? Object.keys(window.puter) : 'not loaded'
       });
 
-      if (window.puter) {
+      // Check not just if puter exists, but also if it has the ai property and chat method
+      if (window.puter && window.puter.ai && typeof window.puter.ai.chat === 'function') {
         clearInterval(checkPuter);
         setIsPuterInitialized(true);
         console.log('Puter is ready to use');
       }
-    }, 1000);
+    }, 500); // Check more frequently
 
-    return () => clearInterval(checkPuter);
-  }, []);
+    // If Puter hasn't initialized after 8 seconds, show a toast warning
+    const timeout = setTimeout(() => {
+      if (!isPuterInitialized) {
+        toast({
+          title: "Puter initialization delay",
+          description: "The AI service is taking longer than expected to initialize. Try selecting a different model and then back to your desired model.",
+          variant: "warning"
+        });
+      }
+    }, 8000);
+
+    return () => {
+      clearInterval(checkPuter);
+      clearTimeout(timeout);
+    };
+  }, [isPuterInitialized]);
 
   const handleSend = async (content: string) => {
-    if (!isPuterInitialized) {
-      toast({
-        title: "Error",
-        description: "Chat is not ready yet. Please wait a moment and try again.",
-        variant: "destructive"
-      });
-      return;
+    // Check if Puter is initialized and has the required ai.chat method
+    if (!isPuterInitialized || !window.puter || !window.puter.ai || typeof window.puter.ai.chat !== 'function') {
+      // Try to initialize Puter again
+      if (window.puter && window.puter.ai && typeof window.puter.ai.chat === 'function') {
+        setIsPuterInitialized(true);
+      } else {
+        toast({
+          title: "Error",
+          description: "Chat service is not ready yet. Please wait a moment and try again.",
+          variant: "destructive"
+        });
+        return;
+      }
     }
 
     // Add user message

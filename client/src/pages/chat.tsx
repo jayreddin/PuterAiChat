@@ -8,9 +8,15 @@ import type { Conversation } from "@shared/schema";
 
 export default function ChatPage() {
   const [currentModel, setCurrentModel] = useState(DEFAULT_MODEL);
-  const [conversation, setConversation] = useState<Conversation>(() => 
-    createNewConversation(currentModel)
-  );
+  const [conversation, setConversation] = useState<Conversation>(() => {
+    // Ensure we create a new conversation with the default model
+    const newConversation = createNewConversation(currentModel);
+    
+    // Immediately save this conversation to storage
+    saveConversation(newConversation);
+    
+    return newConversation;
+  });
 
   const handleModelChange = (modelId: string) => {
     setCurrentModel(modelId);
