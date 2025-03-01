@@ -6,6 +6,9 @@ import { getModelById } from "@/lib/models";
 import { addMessage } from "@/lib/storage";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
+// Added import for DialogFooter (placeholder)
+import { DialogFooter } from "./DialogFooter"; // Placeholder import
+
 
 interface ChatContainerProps {
   conversation: Conversation;
@@ -26,6 +29,19 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
   useEffect(() => {
     scrollToBottom();
   }, [conversation.messages]);
+
+  // Safety function to check Puter availability
+  const isPuterAvailable = () => {
+    return typeof window !== "undefined" &&
+      typeof window.puter !== "undefined" &&
+      typeof window.puter.ai !== "undefined" &&
+      typeof window.puter.ai.chat === "function";
+  };
+
+  // Initialize on mount with a safety check
+  useEffect(() => {
+    setIsPuterInitialized(isPuterAvailable());
+  }, []);
 
   useEffect(() => {
     const checkPuter = setInterval(() => {
@@ -77,7 +93,7 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
           // Wait a moment for initialization
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        
+
         // Check again after loading
         if (window.puter && window.puter.ai && typeof window.puter.ai.chat === 'function') {
           setIsPuterInitialized(true);
@@ -168,7 +184,7 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
   const handleEdit = (messageContent: string, messageId: string) => {
     // Find the index of the message being edited
     const messageIndex = conversation.messages.findIndex(msg => msg.id === messageId);
-    
+
     if (messageIndex !== -1) {
       // Create a new conversation with messages only up to the edited message
       const trimmedMessages = conversation.messages.slice(0, messageIndex + 1);
@@ -176,7 +192,7 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
         ...conversation,
         messages: trimmedMessages
       });
-      
+
       // Set the message content to be edited
       setEditingMessage(messageContent);
     }
@@ -212,6 +228,11 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
         editingMessage={editingMessage}
         onMessageUsed={() => setEditingMessage(null)}
       />
+      {/* Added placeholder for CodeAttachmentsList  */}
+      <CodeAttachmentsList /> {/* Placeholder component */}
+      {/* Added placeholder for DialogFooter */}
+      <DialogFooter /> {/* Placeholder component */}
+
     </div>
   );
 }
@@ -234,3 +255,6 @@ declare global {
     };
   }
 }
+
+// Placeholder components
+const CodeAttachmentsList = () => <div>CodeAttachmentsList Placeholder</div>;

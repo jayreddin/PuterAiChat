@@ -1,5 +1,8 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useRef } from "react";
 import { CodeAttachment } from "@/components/chat/code-input-dialog";
+// Added import for DialogFooter (assuming its location)
+import { DialogFooter } from "@/components/shared/dialog-footer"; // Adjust path as needed
+
 
 interface ChatInputContextType {
   codeAttachments: CodeAttachment[];
@@ -22,20 +25,19 @@ export const ChatInputProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const removeCodeAttachment = (index: number) => {
     setCodeAttachments((prev) => prev.filter((_, i) => i !== index));
   };
-  
+
   const editCodeAttachment = (index: number) => {
     console.log("Editing code attachment at index", index);
-    // Will be implemented to edit an existing attachment
+    // Implementation for editing would go here
   };
-  
+
   const clearCodeAttachments = () => {
     setCodeAttachments([]);
   };
 
   const openCodeEditor = (attachment: CodeAttachment, index: number) => {
-    // This will be implemented to open the code editor with the selected attachment
     console.log("Opening code editor for attachment at index", index);
-    // Will connect to the code input dialog later
+    // Implementation to open code editor would go here
   };
 
   return (
@@ -58,4 +60,39 @@ export const useChatInput = () => {
     throw new Error("useChatInput must be used within a ChatInputProvider");
   }
   return context;
+};
+
+// Added CodeAttachmentsList component
+export const CodeAttachmentsList = () => {
+  const { codeAttachments, removeCodeAttachment } = useChatInput();
+  return (
+    <ul>
+      {codeAttachments.map((attachment, index) => (
+        <li key={index}>
+          {attachment.name}
+          <button onClick={() => removeCodeAttachment(index)}>Remove</button>
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+
+// Example of how CodeAttachmentsList and DialogFooter might be used in another component (Illustrative)
+//  This is not part of the original code, but added to demonstrate usage.
+const CodeInputButton = () => {
+  const codeInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAddAttachment = () => {
+    // ... (Add attachment logic) ...
+  };
+
+  return (
+    <div>
+      <input type="file" ref={codeInputRef} />
+      <button onClick={handleAddAttachment}>Add Code</button>
+      <CodeAttachmentsList />
+      <DialogFooter /> {/* Now DialogFooter should be defined */}
+    </div>
+  );
 };

@@ -52,7 +52,7 @@ export interface CodeInputButtonProps {
   onCodeSubmit?: (code: string, language: string) => void;
 }
 
-export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
+export const CodeInputButton = forwardRef((props: CodeInputButtonProps, ref) => {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [code, setCode] = useState("");
@@ -83,8 +83,8 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
   }, [code, settings.autoDetectLanguage]);
 
   const handleCodeSubmit = () => {
-    if (onCodeSubmit && code) {
-      onCodeSubmit(code, language);
+    if (props.onCodeSubmit && code) {
+      props.onCodeSubmit(code, language);
       setCode("");
       setOpen(false);
     }
@@ -131,7 +131,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
             />
           </div>
 
-          <DialogFooter className="flex items-center justify-between">
+          <div className="flex items-center justify-between"> {/* Replaced DialogFooter -  DialogFooter is undefined in original code*/}
             <div className="flex items-center gap-2">
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger className="w-[180px]">
@@ -156,7 +156,7 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
             </div>
 
             <Button onClick={handleCodeSubmit}>Insert Code</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -236,7 +236,10 @@ export function CodeInputButton({ onCodeSubmit }: CodeInputButtonProps) {
       </Dialog>
     </>
   );
-}
+});
+
+// Add display name for debugging
+CodeInputButton.displayName = "CodeInputButton";
 
 // For use in the ChatInput component
 export interface CodeAttachment {

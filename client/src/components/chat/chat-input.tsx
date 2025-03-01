@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import { UtilityBar } from "./utility-bar";
-import { useChatInput } from "@/contexts/chat-input-context";
+import { useChatInput, CodeAttachmentsList } from "@/contexts/chat-input-context";
 import { CodeAttachmentsList } from "./code-attachment";
 
 interface ChatInputProps {
