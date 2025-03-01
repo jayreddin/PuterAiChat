@@ -5,6 +5,7 @@ import { ChatInput } from "./chat-input";
 import { getModelById } from "@/lib/models";
 import { addMessage } from "@/lib/storage";
 import { motion } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
 
 interface ChatContainerProps {
   conversation: Conversation;
@@ -13,6 +14,7 @@ interface ChatContainerProps {
 
 export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
   const [isTyping, setIsTyping] = useState(false);
+  const [isPuterInitialized, setIsPuterInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const model = getModelById(conversation.model);
 
@@ -24,7 +26,33 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
     scrollToBottom();
   }, [conversation.messages]);
 
+  useEffect(() => {
+    const checkPuter = setInterval(() => {
+      console.log('Checking Puter availability:', {
+        exists: !!window.puter,
+        properties: window.puter ? Object.keys(window.puter) : 'not loaded'
+      });
+
+      if (window.puter) {
+        clearInterval(checkPuter);
+        setIsPuterInitialized(true);
+        console.log('Puter is ready to use');
+      }
+    }, 1000);
+
+    return () => clearInterval(checkPuter);
+  }, []);
+
   const handleSend = async (content: string) => {
+    if (!isPuterInitialized) {
+      toast({
+        title: "Error",
+        description: "Chat is not ready yet. Please wait a moment and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Add user message
     const updatedConvo = addMessage(conversation.id, {
       content,
@@ -32,19 +60,30 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
       timestamp: Date.now(),
       model: conversation.model,
     });
-    
+
     if (!updatedConvo) return;
     onUpdate(updatedConvo);
-    
+
     // Show typing indicator
     setIsTyping(true);
-    
+
     try {
+      console.log('Sending chat request:', {
+        model: conversation.model,
+        content
+      });
+
       // Call Puter AI API
-      const response = await puter.ai.chat(content, {
+      const response = await window.puter.ai.chat(content, {
         model: conversation.model
       });
-      
+
+      console.log('Received response:', response);
+
+      if (!response?.text) {
+        throw new Error("Invalid response from AI");
+      }
+
       // Add AI response
       const finalConvo = addMessage(conversation.id, {
         content: response.text,
@@ -52,12 +91,17 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
         timestamp: Date.now(),
         model: conversation.model,
       });
-      
+
       if (finalConvo) {
         onUpdate(finalConvo);
       }
     } catch (error) {
       console.error("AI chat error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get AI response. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsTyping(false);
     }
@@ -77,7 +121,7 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
             onEdit={message.role === "user" ? handleEdit : undefined}
           />
         ))}
-        
+
         {isTyping && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -87,14 +131,26 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
             {model?.name} is typing...
           </motion.div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
       <ChatInput
         onSend={handleSend}
-        disabled={isTyping}
+        disabled={isTyping || !isPuterInitialized}
       />
     </div>
   );
+}
+
+// Add TypeScript declaration for Puter
+declare global {
+  interface Window {
+    puter?: {
+      init(): Promise<void>;
+      ai: {
+        chat(message: string, options: { model: string }): Promise<{ text: string }>;
+      };
+    };
+  }
 }

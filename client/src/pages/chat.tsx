@@ -42,9 +42,10 @@ export default function ChatPage() {
         />
       </main>
 
-      <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="h-12 flex items-center justify-center">
-          <UtilityBar />
+      <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16 flex flex-col items-center justify-center gap-1">
+        <UtilityBar />
+        <div className="text-sm text-muted-foreground">
+          Created by <a href="https://github.io/jayreddin" className="hover:underline">Jamie Reddin</a> - 2025
         </div>
       </footer>
     </div>
