@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"KZRvUZQvuhFgXHWV/YK1Cw1+UBSOAZT9NW2svJWPGOw=","filePath":"client/src/main.tsx","content":"import { createRoot } from \"react-dom/client\";\nimport App from \"./App\";\nimport \"./index.css\";\n\ncreateRoot(document.getElementById(\"root\")!).render(<App />);\n"}

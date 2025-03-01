@@ -1,0 +1,1 @@
+{"chunk":1,"numChunks":8,"fileHash":"K8fXldmi/UWXkjX5U1XLoV9rvUPhSz0ZecHEillXjWk=","filePath":"client/src/components/chat/code-input-dialog.tsx","content":"import { useState, forwardRef } from \"react\";\nexport const CodeInputDialog = forwardRef<HTMLDivElement, CodeInputDialogProps>(({ onInsert }, ref) => {"}

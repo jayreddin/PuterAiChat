@@ -1,0 +1,1 @@
+{"chunk":5,"numChunks":9,"fileHash":"Z6MxoykBDQezXiBm93lsDulL9HCI1UAI+nNGt9+fw0M=","filePath":"tailwind.config.ts","content":"import type { Config } from \"tailwindcss\";\nexport default {\n  theme: {\n    extend: {"}

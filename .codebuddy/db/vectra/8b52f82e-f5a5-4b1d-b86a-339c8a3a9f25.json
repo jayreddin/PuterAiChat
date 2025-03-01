@@ -1,0 +1,1 @@
+{"chunk":2,"numChunks":7,"fileHash":"N+ym6wwRZ8TqkQVbxndBzYhz5FwcSitugTcOmAx1xbw=","filePath":"client/src/components/chat/chat-bubble.tsx","content":"import { Message } from \"@shared/schema\";\nexport function ChatBubble({ message, onEdit }: ChatBubbleProps) {"}

@@ -1,0 +1,1 @@
+{"chunk":2,"numChunks":4,"fileHash":"dtnu97PIN/Lv/WzFuDc9yp/MO+9JuCqZzU3Q+lggpP8=","filePath":"client/src/components/chat/chat-input.tsx","content":"import { useState, useRef, KeyboardEvent } from \"react\";\nexport function ChatInput({ onSend, disabled }: ChatInputProps) {"}

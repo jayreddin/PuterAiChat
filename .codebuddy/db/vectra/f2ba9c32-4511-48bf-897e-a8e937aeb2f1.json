@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"GQyHfbRmmVvxSC9KFqvQbgSont4xGTQeKob/luFzeyc=","filePath":"postcss.config.js","content":"export default {\n  plugins: {\n    tailwindcss: {},\n    autoprefixer: {},\n  },\n}\n"}

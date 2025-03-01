@@ -1,0 +1,1 @@
+{"chunk":6,"numChunks":9,"fileHash":"Z6MxoykBDQezXiBm93lsDulL9HCI1UAI+nNGt9+fw0M=","filePath":"tailwind.config.ts","content":"import type { Config } from \"tailwindcss\";\nexport default {\n  theme: {\n    extend: {\n      borderRadius: {\n        lg: \"var(--radius)\",\n        md: \"calc(var(--radius) - 2px)\",\n        sm: \"calc(var(--radius) - 4px)\",\n      },"}

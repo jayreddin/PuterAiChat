@@ -1,0 +1,1 @@
+{"chunk":3,"numChunks":33,"fileHash":"Q70ySyBn2S3hdtlbOctcrHOzdH1H002R6cA2hflgZfw=","filePath":"client/src/components/ui/sidebar.tsx","content":"import * as React from \"react\"\nconst SidebarProvider = React.forwardRef<\n  HTMLDivElement,\n  React.ComponentProps<\"div\"> & {\n    defaultOpen?: boolean\n    open?: boolean\n    onOpenChange?: (open: boolean) => void\n  }\n>("}

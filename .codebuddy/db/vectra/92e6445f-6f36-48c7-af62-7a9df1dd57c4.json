@@ -1,0 +1,1 @@
+{"chunk":0,"numChunks":1,"fileHash":"i0amTWuxWNMsmtT/MnAB0+GCXgwTtR14TyISX2TvlIg=","filePath":"client/src/index.css","content":"@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\n@layer base {\n  * {\n    @apply border-border;\n  }\n\n  body {\n    @apply font-sans antialiased bg-background text-foreground;\n  }\n}"}

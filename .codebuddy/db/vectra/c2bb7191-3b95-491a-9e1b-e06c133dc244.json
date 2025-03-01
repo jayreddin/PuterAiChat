@@ -1,0 +1,1 @@
+{"chunk":14,"numChunks":23,"fileHash":"9RZcmhwqdFl3MetiAghAa+84qGc1w3byxMCQc/QGQ8Q=","filePath":"client/src/components/ui/chart.tsx","content":"import * as React from \"react\"\nconst ChartTooltipContent = React.forwardRef<\n>(\n  (\n  ) => {\n    return (\n      <div\n        <div className=\"grid gap-1.5\">\n          {payload.map((item, index) => {"}
