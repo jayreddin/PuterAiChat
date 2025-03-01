@@ -5,7 +5,8 @@ import { X } from "lucide-react";
 import { useChatInput } from "@/contexts/chat-input-context";
 import { cn } from "@/lib/utils";
 
-export const CodeAttachmentList = () => {
+// Renamed to avoid potential conflicts
+export const CodeAttachmentsList = () => {
   const { codeAttachments, removeCodeAttachment, openCodeEditor } = useChatInput();
 
   if (!codeAttachments || codeAttachments.length === 0) {

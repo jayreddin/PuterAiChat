@@ -10,7 +10,7 @@ interface ChatInputContextType {
   openCodeEditor: (attachment: CodeAttachment, index: number) => void;
 }
 
-const ChatInputContext = createContext<ChatInputContextType | undefined>(undefined);
+export const ChatInputContext = createContext<ChatInputContextType | undefined>(undefined);
 
 export const ChatInputProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [codeAttachments, setCodeAttachments] = useState<CodeAttachment[]>([]);
