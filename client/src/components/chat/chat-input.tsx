@@ -54,7 +54,7 @@ export function ChatInput({ onSend, isThinking = false }: ChatInputProps) {
         <div className="flex-grow border border-input bg-background hover:border-zinc-400 dark:hover:border-zinc-600 transition rounded-md">
           <UtilityBar />
           <div className="px-3 pt-2">
-            <CodeAttachmentList />
+            <CodeAttachmentsList />
           </div>
           <Textarea
             ref={textareaRef}
