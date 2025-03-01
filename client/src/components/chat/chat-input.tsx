@@ -1,96 +1,77 @@
-import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { Send } from "lucide-react";
+import React, { useRef, useEffect, useState, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { motion } from "framer-motion";
+import { Send } from "lucide-react";
+import { UtilityBar } from "./utility-bar";
 import { ChatInputContext } from "@/contexts/chat-input-context";
+import { CodeAttachmentList } from "./code-attachment";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
-  disabled?: boolean;
-  editingMessage?: string | null;
-  onMessageUsed?: () => void;
+  isThinking?: boolean;
 }
 
-export function ChatInput({ onSend, disabled, editingMessage, onMessageUsed }: ChatInputProps) {
+export function ChatInput({ onSend, isThinking = false }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  
-  // When editingMessage changes and is not null, update the message state
-  useEffect(() => {
-    if (editingMessage) {
-      setMessage(editingMessage);
-      
-      // Focus the textarea
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-      }
-      
-      // Notify parent that we've used the editingMessage
-      if (onMessageUsed) {
-        onMessageUsed();
-      }
-    }
-  }, [editingMessage, onMessageUsed]);
+  const { setInputRef, codeAttachments, clearCodeAttachments } = useContext(ChatInputContext);
 
-  const handleSubmit = () => {
-    if (message.trim() && !disabled) {
-      onSend(message.trim());
-      setMessage("");
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
+  useEffect(() => {
+    if (textareaRef.current) {
+      setInputRef(textareaRef.current);
+    }
+  }, [setInputRef]);
+
+  const handleSend = () => {
+    if ((message.trim() || codeAttachments.length > 0) && !isThinking) {
+      // Format code blocks to include in the message
+      let finalMessage = message;
+
+      // Append code blocks to the message
+      if (codeAttachments.length > 0) {
+        codeAttachments.forEach(attachment => {
+          finalMessage += `\n\n\`\`\`${attachment.language}\n${attachment.code}\n\`\`\``;
+        });
       }
+
+      onSend(finalMessage);
+      setMessage("");
+      clearCodeAttachments();
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      handleSend();
     }
-  };
-
-  const insertText = (text: string) => {
-    setMessage(prev => {
-      const position = textareaRef.current?.selectionStart || prev.length;
-      const newMessage = prev.slice(0, position) + text + prev.slice(position);
-      return newMessage;
-    });
-
-    // Focus the textarea after inserting
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-      }
-    }, 0);
   };
 
   return (
-    <ChatInputContext.Provider value={{ insertText }}>
-      <motion.div
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        className="fixed bottom-16 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-4 z-10"
-      >
-        <div className="max-w-3xl mx-auto flex gap-2">
+    <div className="border-t border-zinc-200 dark:border-zinc-800 p-4">
+      <div className="flex items-end gap-2">
+        <div className="flex-grow border border-input bg-background hover:border-zinc-400 dark:hover:border-zinc-600 transition rounded-md">
+          <UtilityBar />
+          <div className="px-3 pt-2">
+            <CodeAttachmentList />
+          </div>
           <Textarea
             ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message... (Shift + Enter for new line)"
-            className="resize-none min-h-[50px] max-h-[200px]"
-            disabled={disabled}
+            placeholder="Type a message..."
+            className="min-h-10 resize-none border-0 bg-transparent p-3 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
-          <Button
-            onClick={handleSubmit}
-            disabled={!message.trim() || disabled}
-            size="icon"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
         </div>
-      </motion.div>
-    </ChatInputContext.Provider>
+        <Button
+          size="icon"
+          onClick={handleSend}
+          disabled={(message.trim() === "" && codeAttachments.length === 0) || isThinking}
+        >
+          <Send className="h-5 w-5" />
+        </Button>
+      </div>
+    </div>
   );
 }

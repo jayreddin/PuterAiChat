@@ -47,7 +47,7 @@ export function UtilityBar() {
         ))}
         <Tooltip>
           <TooltipTrigger asChild>
-            <CodeInputButton onInsert={text => insertText?.(text)} />
+            <CodeInputButton onInsert={text => insertText?.(text)} /> {/*Minimal change from provided edits*/}
           </TooltipTrigger>
           <TooltipContent>
             <p>Insert Code</p>
