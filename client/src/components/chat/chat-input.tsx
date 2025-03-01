@@ -8,30 +8,30 @@ import { ChatInputContext } from "@/contexts/chat-input-context";
 interface ChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
-  initialMessage?: string | null;
+  editingMessage?: string | null;
   onMessageUsed?: () => void;
 }
 
-export function ChatInput({ onSend, disabled, initialMessage, onMessageUsed }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, editingMessage, onMessageUsed }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  // When initialMessage changes and is not null, update the message state
+  // When editingMessage changes and is not null, update the message state
   useEffect(() => {
-    if (initialMessage) {
-      setMessage(initialMessage);
+    if (editingMessage) {
+      setMessage(editingMessage);
       
       // Focus the textarea
       if (textareaRef.current) {
         textareaRef.current.focus();
       }
       
-      // Notify parent that we've used the initialMessage
+      // Notify parent that we've used the editingMessage
       if (onMessageUsed) {
         onMessageUsed();
       }
     }
-  }, [initialMessage, onMessageUsed]);
+  }, [editingMessage, onMessageUsed]);
 
   const handleSubmit = () => {
     if (message.trim() && !disabled) {

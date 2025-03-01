@@ -9,7 +9,7 @@ import { CodeEditor } from "./code-editor";
 
 interface ChatBubbleProps {
   message: Message;
-  onEdit?: (content: string) => void;
+  onEdit?: (content: string, messageId: string) => void;
 }
 
 function detectCodeBlocks(content: string) {
@@ -114,7 +114,7 @@ export function ChatBubble({ message, onEdit }: ChatBubbleProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onEdit(message.content)}
+              onClick={() => onEdit(message.content, message.id)}
             >
               <Edit2 className="h-4 w-4 mr-1" />
               Edit

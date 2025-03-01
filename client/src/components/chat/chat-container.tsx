@@ -146,8 +146,21 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
     }
   };
 
-  const handleEdit = (messageContent: string) => {
-    setEditingMessage(messageContent); //Added this line
+  const handleEdit = (messageContent: string, messageId: string) => {
+    // Find the index of the message being edited
+    const messageIndex = conversation.messages.findIndex(msg => msg.id === messageId);
+    
+    if (messageIndex !== -1) {
+      // Create a new conversation with messages only up to the edited message
+      const trimmedMessages = conversation.messages.slice(0, messageIndex + 1);
+      onUpdate({
+        ...conversation,
+        messages: trimmedMessages
+      });
+      
+      // Set the message content to be edited
+      setEditingMessage(messageContent);
+    }
   };
 
   return (
@@ -177,7 +190,8 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
       <ChatInput
         onSend={handleSend}
         disabled={isTyping || !isPuterInitialized}
-        editingMessage={editingMessage} //Pass editingMessage to ChatInput
+        editingMessage={editingMessage}
+        onMessageUsed={() => setEditingMessage(null)}
       />
     </div>
   );
