@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Code2, Settings } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -131,7 +131,7 @@ export const CodeInputButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAtt
             />
           </div>
 
-          <div className="flex items-center justify-between"> {/* Replaced DialogFooter -  DialogFooter is undefined in original code*/}
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger className="w-[180px]">

@@ -6,8 +6,8 @@ import { getModelById } from "@/lib/models";
 import { addMessage } from "@/lib/storage";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
-// Added import for DialogFooter (placeholder)
-import { DialogFooter } from "./DialogFooter"; // Placeholder import
+// Import DialogFooter from UI components
+import { DialogFooter } from "@/components/ui/dialog";
 
 
 interface ChatContainerProps {
