@@ -2,7 +2,8 @@ import { useState, useRef, KeyboardEvent } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { CodeInputDialog } from "./code-input-dialog";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -30,6 +31,13 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     }
   };
 
+  const handleCodeInsert = (code: string) => {
+    setMessage(prev => {
+      const position = textareaRef.current?.selectionStart || prev.length;
+      return prev.slice(0, position) + code + prev.slice(position);
+    });
+  };
+
   return (
     <motion.div
       initial={{ y: 100 }}
@@ -37,6 +45,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
       className="fixed bottom-16 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-4 z-10"
     >
       <div className="max-w-3xl mx-auto flex gap-2">
+        <CodeInputDialog onInsert={handleCodeInsert} />
         <Textarea
           ref={textareaRef}
           value={message}
