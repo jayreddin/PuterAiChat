@@ -52,7 +52,7 @@ export interface CodeInputButtonProps {
   onCodeSubmit?: (code: string, language: string) => void;
 }
 
-export const CodeInputButton = forwardRef((props: CodeInputButtonProps, ref) => {
+export const CodeInputButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>((props: CodeInputButtonProps, ref) => {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [code, setCode] = useState("");

@@ -4,7 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import { UtilityBar } from "./utility-bar";
 import { useChatInput, CodeAttachmentsList } from "@/contexts/chat-input-context";
-import { CodeAttachmentsList } from "./code-attachment";
+//Removed duplicate import
+//import { CodeAttachmentsList } from "./code-attachment";
 
 interface ChatInputProps {
   onSend: (message: string) => void;

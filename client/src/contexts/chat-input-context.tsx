@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useRef } from "react";
 import { CodeAttachment } from "@/components/chat/code-input-dialog";
-// Added import for DialogFooter (assuming its location)
-import { DialogFooter } from "@/components/shared/dialog-footer"; // Adjust path as needed
+// Import DialogFooter from the proper UI components location
+import { DialogFooter } from "@/components/ui/dialog";
 
 
 interface ChatInputContextType {
