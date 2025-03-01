@@ -27,12 +27,11 @@ export default function ChatPage() {
   return (
     <div className="h-screen flex flex-col">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between p-4 max-w-6xl mx-auto">
+        <div className="h-16 flex items-center justify-center p-4">
           <ModelSelect
             value={currentModel}
             onChange={handleModelChange}
           />
-          <UtilityBar />
         </div>
       </header>
 
@@ -42,6 +41,12 @@ export default function ChatPage() {
           onUpdate={handleConversationUpdate}
         />
       </main>
+
+      <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="h-12 flex items-center justify-center">
+          <UtilityBar />
+        </div>
+      </footer>
     </div>
   );
 }

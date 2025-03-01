@@ -1,0 +1,35 @@
+[vite] connected.
+AI chat error: 
+ReferenceError {}
+message: "puter is not defined"
+stack: "ReferenceError: puter is not defined↵ at handleSend (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/components/chat/chat-container.tsx:46:24)↵ at handleSubmit (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/components/chat/chat-input.tsx:29:7)↵ at handleKeyDown (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/src/components/chat/chat-input.tsx:39:7)↵ at HTMLUnknownElement.callCallback2 (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ad737d06:3674:22)↵ at Object.invokeGuardedCallbackDev (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ad737d06:3699:24)↵ at invokeGuardedCallback (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ad737d06:3733:39)↵ at invokeGuardedCallbackAndCatchFirstError (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ad737d06:3736:33)↵ at executeDispatch (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ad737d06:7014:11)↵ at processDispatchQueueItemsInOrder (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ad737d06:7034:15)↵ at processDispatchQueue (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=ad737d06:7043:13)"
+get stack: ƒ ()
+length: 0
+name: ""
+[[Prototype]]: ƒ ()
+apply: ƒ apply()
+arguments: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get arguments: ƒ ()
+set arguments: ƒ ()
+bind: ƒ bind()
+call: ƒ call()
+caller: "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them"
+get caller: ƒ ()
+set caller: ƒ ()
+constructor: ƒ Function()
+length: 0
+name: ""
+toString: ƒ toString()
+Symbol(Symbol.hasInstance): undefined
+[[Prototype]]: Object
+set stack: ƒ ()
+[[Prototype]]: Object
+constructor: ƒ ReferenceError()
+message: "puter is not defined"
+name: "ReferenceError"
+[[Prototype]]: Object
+
+at t.value (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://5c5d5ea2-2a86-4fd4-a5e5-2f0360942f9e-00-3surl483skg5z.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
