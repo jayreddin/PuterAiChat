@@ -80,13 +80,30 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
 
       console.log('Received response:', response);
 
-      if (!response?.message?.content) {
+      // Extract the AI's response text based on the model's response format
+      let aiResponse: string;
+      if (response?.message?.content) {
+        // Handle simple string content
+        if (typeof response.message.content === 'string') {
+          aiResponse = response.message.content;
+        }
+        // Handle array of content blocks (Claude format)
+        else if (Array.isArray(response.message.content)) {
+          aiResponse = response.message.content
+            .filter(block => block.type === 'text')
+            .map(block => block.text)
+            .join('\n');
+        }
+        else {
+          throw new Error("Unexpected response format from AI");
+        }
+      } else {
         throw new Error("Invalid response from AI");
       }
 
       // Add AI response
       const finalConvo = addMessage(conversation.id, {
-        content: response.message.content,
+        content: aiResponse,
         role: "assistant",
         timestamp: Date.now(),
         model: conversation.model,
@@ -153,7 +170,7 @@ declare global {
           index: number;
           message: {
             role: string;
-            content: string;
+            content: string | Array<{type: string, text: string}>;
           };
           finish_reason: string;
         }>;
