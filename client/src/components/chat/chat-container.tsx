@@ -80,13 +80,13 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
 
       console.log('Received response:', response);
 
-      if (!response?.text) {
+      if (!response?.message?.content) {
         throw new Error("Invalid response from AI");
       }
 
       // Add AI response
       const finalConvo = addMessage(conversation.id, {
-        content: response.text,
+        content: response.message.content,
         role: "assistant",
         timestamp: Date.now(),
         model: conversation.model,
@@ -149,7 +149,14 @@ declare global {
     puter?: {
       init(): Promise<void>;
       ai: {
-        chat(message: string, options: { model: string }): Promise<{ text: string }>;
+        chat(message: string, options: { model: string }): Promise<{
+          index: number;
+          message: {
+            role: string;
+            content: string;
+          };
+          finish_reason: string;
+        }>;
       };
     };
   }
