@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CodeInputButton } from "./code-input-dialog";
+import { CodeInputDialog } from "./code-input-dialog";
 import { useContext } from "react";
 import { ChatInputContext } from "@/contexts/chat-input-context";
 
@@ -47,7 +47,7 @@ export function UtilityBar() {
         ))}
         <Tooltip>
           <TooltipTrigger asChild>
-            <CodeInputButton onInsert={text => insertText?.(text)} />
+            <CodeInputDialog onInsert={text => insertText?.(text)} />
           </TooltipTrigger>
           <TooltipContent>
             <p>Insert Code</p>

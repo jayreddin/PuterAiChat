@@ -2,31 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PuterChat - AI Chat powered by Puter.com</title>
-    <script>
-      // Add fallback handling for Puter API
-      window.addEventListener('error', function(event) {
-        if (event.message && event.message.includes('puter') && !window.puterErrorHandled) {
-          window.puterErrorHandled = true;
-          const script = document.createElement('script');
-          script.src = 'https://js.puter.com/v2/';
-          script.async = true;
-          document.head.appendChild(script);
-        }
-      });
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script 
-      src="https://js.puter.com/v2/" 
-      integrity="sha384-xdb9fYGlkuWXlxgHRALwfXZuTLCfBXvLzdRBlB76BAHIP3cZDw1NVQnoVgpZbptg" 
-      crossorigin="anonymous" 
-      defer
-      onerror="console.error('Failed to load Puter.js, retrying...'); setTimeout(() => { const s = document.createElement('script'); s.src = 'https://js.puter.com/v2/'; document.head.appendChild(s); }, 1000);"
-    ></script>
+    <script src="https://js.puter.com/v2/" defer></script>
   </body>
 </html>

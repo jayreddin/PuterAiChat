@@ -6,9 +6,6 @@ import { getModelById } from "@/lib/models";
 import { addMessage } from "@/lib/storage";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
-// Import DialogFooter from UI components
-import { DialogFooter } from "@/components/ui/dialog";
-
 
 interface ChatContainerProps {
   conversation: Conversation;
@@ -18,9 +15,8 @@ interface ChatContainerProps {
 export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
   const [isTyping, setIsTyping] = useState(false);
   const [isPuterInitialized, setIsPuterInitialized] = useState(false);
-  const [editingMessage, setEditingMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const model = getModelById(conversation.modelId);
+  const model = getModelById(conversation.model);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,19 +26,6 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
     scrollToBottom();
   }, [conversation.messages]);
 
-  // Safety function to check Puter availability
-  const isPuterAvailable = () => {
-    return typeof window !== "undefined" &&
-      typeof window.puter !== "undefined" &&
-      typeof window.puter.ai !== "undefined" &&
-      typeof window.puter.ai.chat === "function";
-  };
-
-  // Initialize on mount with a safety check
-  useEffect(() => {
-    setIsPuterInitialized(isPuterAvailable());
-  }, []);
-
   useEffect(() => {
     const checkPuter = setInterval(() => {
       console.log('Checking Puter availability:', {
@@ -50,64 +33,24 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
         properties: window.puter ? Object.keys(window.puter) : 'not loaded'
       });
 
-      // Check not just if puter exists, but also if it has the ai property and chat method
-      if (window.puter && window.puter.ai && typeof window.puter.ai.chat === 'function') {
+      if (window.puter) {
         clearInterval(checkPuter);
         setIsPuterInitialized(true);
         console.log('Puter is ready to use');
       }
-    }, 500); // Check more frequently
+    }, 1000);
 
-    // If Puter hasn't initialized after 8 seconds, show a toast warning
-    const timeout = setTimeout(() => {
-      if (!isPuterInitialized) {
-        toast({
-          title: "Puter initialization delay",
-          description: "The AI service is taking longer than expected to initialize. Try selecting a different model and then back to your desired model.",
-          variant: "warning"
-        });
-      }
-    }, 8000);
-
-    return () => {
-      clearInterval(checkPuter);
-      clearTimeout(timeout);
-    };
-  }, [isPuterInitialized]);
+    return () => clearInterval(checkPuter);
+  }, []);
 
   const handleSend = async (content: string) => {
-    // Check if Puter is initialized and has the required ai.chat method
-    if (!isPuterInitialized || !window.puter || !window.puter.ai || typeof window.puter.ai.chat !== 'function') {
-      try {
-        // Make sure Puter script is loaded before trying to use it
-        if (typeof window.puter === 'undefined') {
-          // Load Puter script dynamically if it's not available
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://js.puter.com/v2/';
-            script.async = true;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-          });
-          // Wait a moment for initialization
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        // Check again after loading
-        if (window.puter && window.puter.ai && typeof window.puter.ai.chat === 'function') {
-          setIsPuterInitialized(true);
-        } else {
-          throw new Error("Puter AI service not available");
-        }
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Chat service is not available. Please refresh the page and try again.",
-          variant: "destructive"
-        });
-        return;
-      }
+    if (!isPuterInitialized) {
+      toast({
+        title: "Error",
+        description: "Chat is not ready yet. Please wait a moment and try again.",
+        variant: "destructive"
+      });
+      return;
     }
 
     // Add user message
@@ -181,21 +124,8 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
     }
   };
 
-  const handleEdit = (messageContent: string, messageId: string) => {
-    // Find the index of the message being edited
-    const messageIndex = conversation.messages.findIndex(msg => msg.id === messageId);
-
-    if (messageIndex !== -1) {
-      // Create a new conversation with messages only up to the edited message
-      const trimmedMessages = conversation.messages.slice(0, messageIndex + 1);
-      onUpdate({
-        ...conversation,
-        messages: trimmedMessages
-      });
-
-      // Set the message content to be edited
-      setEditingMessage(messageContent);
-    }
+  const handleEdit = (messageContent: string) => {
+    handleSend(messageContent);
   };
 
   return (
@@ -225,14 +155,7 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
       <ChatInput
         onSend={handleSend}
         disabled={isTyping || !isPuterInitialized}
-        editingMessage={editingMessage}
-        onMessageUsed={() => setEditingMessage(null)}
       />
-      {/* Added placeholder for CodeAttachmentsList  */}
-      <CodeAttachmentsList /> {/* Placeholder component */}
-      {/* Added placeholder for DialogFooter */}
-      <DialogFooter /> {/* Placeholder component */}
-
     </div>
   );
 }
@@ -255,6 +178,3 @@ declare global {
     };
   }
 }
-
-// Placeholder components
-const CodeAttachmentsList = () => <div>CodeAttachmentsList Placeholder</div>;
