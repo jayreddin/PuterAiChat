@@ -65,6 +65,11 @@ export const useChatInput = () => {
 // Added CodeAttachmentsList component
 export const CodeAttachmentsList = () => {
   const { codeAttachments, removeCodeAttachment } = useChatInput();
+  
+  if (!codeAttachments || codeAttachments.length === 0) {
+    return null;
+  }
+  
   return (
     <ul>
       {codeAttachments.map((attachment, index) => (
