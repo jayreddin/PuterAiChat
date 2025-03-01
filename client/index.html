@@ -2,7 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PuterChat - AI Chat powered by Puter.com</title>
+    <script>
+      // Add fallback handling for Puter API
+      window.addEventListener('error', function(event) {
+        if (event.message && event.message.includes('puter') && !window.puterErrorHandled) {
+          window.puterErrorHandled = true;
+          const script = document.createElement('script');
+          script.src = 'https://js.puter.com/v2/';
+          script.async = true;
+          document.head.appendChild(script);
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

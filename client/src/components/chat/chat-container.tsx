@@ -62,13 +62,32 @@ export function ChatContainer({ conversation, onUpdate }: ChatContainerProps) {
   const handleSend = async (content: string) => {
     // Check if Puter is initialized and has the required ai.chat method
     if (!isPuterInitialized || !window.puter || !window.puter.ai || typeof window.puter.ai.chat !== 'function') {
-      // Try to initialize Puter again
-      if (window.puter && window.puter.ai && typeof window.puter.ai.chat === 'function') {
-        setIsPuterInitialized(true);
-      } else {
+      try {
+        // Make sure Puter script is loaded before trying to use it
+        if (typeof window.puter === 'undefined') {
+          // Load Puter script dynamically if it's not available
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://js.puter.com/v2/';
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+          // Wait a moment for initialization
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        // Check again after loading
+        if (window.puter && window.puter.ai && typeof window.puter.ai.chat === 'function') {
+          setIsPuterInitialized(true);
+        } else {
+          throw new Error("Puter AI service not available");
+        }
+      } catch (error) {
         toast({
           title: "Error",
-          description: "Chat service is not ready yet. Please wait a moment and try again.",
+          description: "Chat service is not available. Please refresh the page and try again.",
           variant: "destructive"
         });
         return;
