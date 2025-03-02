@@ -1,77 +1,81 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { useState, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Globe } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Link } from "lucide-react";
 
 interface WebAddressDialogProps {
   onInsert: (text: string) => void;
 }
 
-export function WebAddressDialog({ onInsert }: WebAddressDialogProps) {
+export const WebAddressDialog = forwardRef<HTMLButtonElement, WebAddressDialogProps>(({ onInsert }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [url, setUrl] = useState("");
-  const [previewUrl, setPreviewUrl] = useState("");
-
-  // Format URL with http/https if needed
-  useEffect(() => {
-    if (!url) {
-      setPreviewUrl("");
-      return;
-    }
-
-    let formattedUrl = url;
-    if (!/^https?:\/\//i.test(url)) {
-      formattedUrl = `https://${url}`;
-    }
-    setPreviewUrl(formattedUrl);
-  }, [url]);
-
-  const handleSave = () => {
-    if (previewUrl) {
-      onInsert(previewUrl);
-      setIsOpen(false);
-      setUrl("");
-    }
+  const [text, setText] = useState("");
+  
+  const handleInsert = () => {
+    const markdownLink = text ? `[${text}](${url})` : url;
+    onInsert(markdownLink);
+    setIsOpen(false);
+    setUrl("");
+    setText("");
   };
-
+  
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)}>
-        <Globe className="h-4 w-4" />
-      </Button>
-      <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Add Web Address</DialogTitle>
-            <DialogDescription>Add a web address to be used in the chat.</DialogDescription>
-          </DialogHeader>
+      <DialogTrigger asChild>
+        {/* Added ref here */}
+        <Button ref={ref} variant="ghost" size="icon" className="hover:bg-muted">
+          <Link className="h-5 w-5" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Insert Link</DialogTitle>
+        </DialogHeader>
         <div className="grid gap-4 py-4">
-          <Input
-            placeholder="Enter web address (e.g., example.com)"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-          
-          {previewUrl && (
-            <div className="mt-2">
-              <p className="text-sm text-muted-foreground mb-2">Preview:</p>
-              <div className="border rounded-md p-2 flex items-center gap-2">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm truncate">{previewUrl}</span>
-              </div>
-              <div className="mt-4 border rounded-md overflow-hidden h-24 bg-muted flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Website preview</p>
-              </div>
-            </div>
-          )}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="url" className="text-right">
+              URL
+            </Label>
+            <Input
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="col-span-3"
+              placeholder="https://example.com"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="text" className="text-right">
+              Text
+            </Label>
+            <Input
+              id="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              className="col-span-3"
+              placeholder="(Optional) Display text"
+            />
+          </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
-            Cancel
+          <Button type="submit" onClick={handleInsert}>
+            Insert
           </Button>
-          <Button onClick={handleSave} disabled={!url}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+// Add displayName
+WebAddressDialog.displayName = "WebAddressDialog";

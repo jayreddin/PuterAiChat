@@ -8,7 +8,7 @@ interface PuterContextType {
   error: Error | null;
 }
 
-const PuterContext = createContext<PuterContextType | undefined>(undefined);
+export const PuterContext = createContext<PuterContextType | undefined>(undefined); // Export the context
 
 export function PuterProvider({ children }: { children: ReactNode }) {
   const puterState = usePuterInit();
