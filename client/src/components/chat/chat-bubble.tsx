@@ -19,7 +19,6 @@ function detectCodeBlocks(content: string) {
   let match;
 
   while ((match = codeBlockRegex.exec(content)) !== null) {
-    // Add text before code block if any
     if (match.index > lastIndex) {
       parts.push({
         type: 'text',
@@ -27,7 +26,6 @@ function detectCodeBlocks(content: string) {
       });
     }
 
-    // Add code block
     parts.push({
       type: 'code',
       language: match[1] || 'plaintext',
@@ -37,7 +35,6 @@ function detectCodeBlocks(content: string) {
     lastIndex = match.index + match[0].length;
   }
 
-  // Add remaining text if any
   if (lastIndex < content.length) {
     parts.push({
       type: 'text',
@@ -65,63 +62,72 @@ export function ChatBubble({ message, onEdit }: ChatBubbleProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-4`}
+      className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-8`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-        <span>{format(message.timestamp, 'h:mm a')}</span>
-        <span>{isUser ? 'You' : 'AI'}</span>
+      <div className={`flex items-center gap-2 text-sm mb-2 ${
+        isUser ? 'text-primary/70' : 'text-muted-foreground'
+      }`}>
+        <span className="font-medium">{isUser ? 'You' : 'AI'}</span>
+        <span className="opacity-60">{format(message.timestamp, 'h:mm a')}</span>
       </div>
 
       <div className={`
-        max-w-[80%] rounded-lg p-4
+        relative max-w-[85%] rounded-xl p-4 shadow-sm
         ${isUser ? 
-          'bg-primary text-primary-foreground ml-8' : 
-          'bg-muted text-muted-foreground mr-8'
+          'bg-blue-500 text-white dark:bg-blue-600' : 
+          'bg-green-500 text-white dark:bg-green-600'
         }
+        ${isUser ? 'ml-8' : 'mr-8'}
       `}>
         {parts.map((part, index) => (
           part.type === 'code' ? (
             <CodeEditor
               key={index}
               value={part.content}
-              language={part.language}
+              language={part.language || 'plaintext'}
+              onChange={() => {}}
               readOnly={true}
+              height="200px"
             />
           ) : (
-            <p key={index} className="whitespace-pre-wrap">{part.content}</p>
+            <p key={index} className="whitespace-pre-wrap leading-relaxed">
+              {part.content}
+            </p>
           )
         ))}
-      </div>
 
-      {showActions && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex gap-2 mt-2"
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={copyToClipboard}
+        {showActions && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`absolute ${isUser ? 'left-0' : 'right-0'} top-0 -translate-y-full pt-2 flex gap-1`}
           >
-            <Copy className="h-4 w-4 mr-1" />
-            Copy
-          </Button>
-
-          {isUser && onEdit && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onEdit(message.content)}
+              onClick={copyToClipboard}
+              className="h-8 bg-background/95 backdrop-blur-sm shadow-sm"
             >
-              <Edit2 className="h-4 w-4 mr-1" />
-              Edit
+              <Copy className="h-4 w-4 mr-1" />
+              Copy
             </Button>
-          )}
-        </motion.div>
-      )}
+
+            {isUser && onEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(message.content)}
+                className="h-8 bg-background/95 backdrop-blur-sm shadow-sm"
+              >
+                <Edit2 className="h-4 w-4 mr-1" />
+                Edit
+              </Button>
+            )}
+          </motion.div>
+        )}
+      </div>
     </motion.div>
   );
 }

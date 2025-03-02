@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { modelGroups } from "@/lib/models";
+import { ChevronDown } from "lucide-react";
 
 interface ModelSelectProps {
   value: string;
@@ -15,10 +16,19 @@ interface ModelSelectProps {
 }
 
 export function ModelSelect({ value, onChange }: ModelSelectProps) {
+  const currentModel = modelGroups
+    .flatMap(group => group.models)
+    .find(model => model.id === value);
+
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[200px] h-8 text-sm">
-        <SelectValue placeholder="Select a model" />
+      <SelectTrigger className="w-auto min-w-[200px] border-none focus:ring-0 focus:ring-offset-0 p-0 [&>svg]:hidden">
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-bold">
+            {currentModel?.name || "Select a model"}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </div>
       </SelectTrigger>
       <SelectContent>
         {modelGroups.map((group) => (

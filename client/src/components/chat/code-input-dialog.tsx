@@ -1,4 +1,4 @@
-import { useState, forwardRef, useContext, useEffect } from "react";
+import { Suspense, lazy, memo, useState, forwardRef, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,20 +9,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Code2 } from "lucide-react";
-import { PuterContext } from "@/contexts/puter-context"; // Now correctly exported
-import { useDarkMode } from "@/hooks/use-dark-mode"; // Now correctly implemented
-import { CodeEditor } from "@/components/chat/code-editor"; // Props fixed
+import { useDarkMode } from "@/hooks/use-dark-mode";
+
+// Lazy load CodeEditor component
+const CodeEditor = lazy(() => import("@/components/chat/code-editor").then(module => ({
+  default: module.CodeEditor
+})));
 
 interface CodeInputDialogProps {
   onInsert: (text: string) => void;
 }
 
-export const CodeInputDialog = forwardRef<HTMLButtonElement, CodeInputDialogProps>(({ onInsert }, ref) => {
+const CodeInputDialogComponent = forwardRef<HTMLButtonElement, CodeInputDialogProps>(({ onInsert }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("typescript");
   const { isDarkMode } = useDarkMode();
-  const puterContext = useContext(PuterContext);
   
   const handleInsert = () => {
     const codeBlock = `\`\`\`${language}\n${code}\n\`\`\``;
@@ -43,14 +45,20 @@ export const CodeInputDialog = forwardRef<HTMLButtonElement, CodeInputDialogProp
           <DialogTitle>Insert Code</DialogTitle>
         </DialogHeader>
         <div className="flex-1 min-h-[300px] overflow-hidden">
-          <CodeEditor
-            value={code}
-            onChange={setCode}
-            language={language}
-            onLanguageChange={setLanguage}
-            theme={isDarkMode ? "vs-dark" : "vs-light"}
-            height="300px"
-          />
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-[300px] bg-muted">
+              Loading editor...
+            </div>
+          }>
+            <CodeEditor
+              value={code}
+              onChange={setCode}
+              language={language}
+              onLanguageChange={setLanguage}
+              theme={isDarkMode ? "vs-dark" : "vs-light"}
+              height="300px"
+            />
+          </Suspense>
         </div>
         <DialogFooter className="mt-4">
           <Button type="submit" onClick={handleInsert}>
@@ -62,5 +70,7 @@ export const CodeInputDialog = forwardRef<HTMLButtonElement, CodeInputDialogProp
   );
 });
 
-// Add displayName
-CodeInputDialog.displayName = "CodeInputDialog";
+CodeInputDialogComponent.displayName = "CodeInputDialog";
+
+// Memoize the component to prevent unnecessary re-renders
+export const CodeInputDialog = memo(CodeInputDialogComponent);
