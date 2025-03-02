@@ -39,6 +39,7 @@ function createManualChunks(id) {
   return null;
 }
 var vite_config_default = defineConfig({
+  base: "/PuterAiChat/",
   plugins: [
     react(),
     runtimeErrorOverlay(),
