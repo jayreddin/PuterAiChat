@@ -1,85 +1,177 @@
-import { memo } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Code2, Link, Brain, Settings2 } from "lucide-react";
-import { useChatInputContext } from "@/contexts/chat-input-context";
-import { CodeInputDialog } from "./code-input-dialog";
-import { WebAddressDialog } from "./web-address-dialog";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Image,
+  Upload,
+  Brain,
+  Globe,
+  Code2,
+  Settings
+} from "lucide-react";
+import { ImageUploadDialog } from "./image-upload-dialog";
+import { FileUploadDialog } from "./file-upload-dialog";
 import { DeepThinkDialog } from "./deep-think-dialog";
+import { WebAddressDialog } from "./web-address-dialog";
+import { CodeInputDialog } from "./code-input-dialog";
 import { SettingsDialog } from "./settings-dialog";
 
-interface TooltipButtonProps {
-  tooltip: string;
-  children: React.ReactNode;
-  onClick?: () => void;
+interface UploadedImage {
+  id: string;
+  url: string;
+}
+
+interface UtilityBarProps {
+  onImageUploaded: (images: UploadedImage[]) => void;
+  onFileUploaded?: (files: { id: string; url: string; name: string }[]) => void;
+  onDeepThink?: (prompt: string) => void;
+  onWebAddress?: (url: string) => void;
+  onCodeInput?: (code: string, language: string) => void;
   disabled?: boolean;
 }
 
-const TooltipButton = memo(({ tooltip, children, onClick, disabled }: TooltipButtonProps) => (
-  <Tooltip>
-    <TooltipTrigger 
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={tooltip}
-    >
-      {children}
-    </TooltipTrigger>
-    <TooltipContent>
-      <p>{tooltip}</p>
-    </TooltipContent>
-  </Tooltip>
-));
+type DialogType = 'image' | 'file' | 'deepThink' | 'web' | 'code' | 'settings';
 
-TooltipButton.displayName = "TooltipButton";
+export function UtilityBar({
+  onImageUploaded,
+  onFileUploaded,
+  onDeepThink,
+  onWebAddress,
+  onCodeInput,
+  disabled
+}: UtilityBarProps) {
+  const [activeDialog, setActiveDialog] = useState<DialogType | null>(null);
 
-const UtilityBarComponent = () => {
-  const { insertText } = useChatInputContext();
+  const handleDialogClose = () => {
+    setActiveDialog(null);
+  };
+
+  const handleDeepThink = (prompt: string) => {
+    onDeepThink?.(prompt);
+    handleDialogClose();
+  };
+
+  const handleWebAddress = (url: string) => {
+    onWebAddress?.(url);
+    handleDialogClose();
+  };
+
+  const handleCodeInput = (code: string, language: string) => {
+    onCodeInput?.(code, language);
+    handleDialogClose();
+  };
+
+  const handleImageUpload = (images: UploadedImage[]) => {
+    onImageUploaded(images);
+    handleDialogClose();
+  };
+
+  const handleFileUpload = (files: { id: string; url: string; name: string }[]) => {
+    onFileUploaded?.(files);
+    handleDialogClose();
+  };
 
   return (
-    <TooltipProvider>
-      <div 
-        className="flex items-center space-x-2" 
-        role="toolbar" 
-        aria-label="Text formatting tools"
+    <div className="flex items-center justify-center gap-1.5 p-1.5 rounded-lg bg-muted/50">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setActiveDialog('image')}
+        disabled={disabled}
+        className="bg-background/95 backdrop-blur-sm shadow-sm"
+        title="Upload Images"
       >
-        <CodeInputDialog 
-          onInsert={insertText}
-          ref={(ref) => {
-            if (ref) {
-              ref.setAttribute('aria-label', 'Insert code');
-            }
-          }}
-        />
+        <Image className="h-5 w-5" />
+      </Button>
 
-        <WebAddressDialog 
-          onInsert={insertText}
-          ref={(ref) => {
-            if (ref) {
-              ref.setAttribute('aria-label', 'Insert link');
-            }
-          }}
-        />
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setActiveDialog('file')}
+        disabled={disabled}
+        className="bg-background/95 backdrop-blur-sm shadow-sm"
+        title="Upload Files"
+      >
+        <Upload className="h-5 w-5" />
+      </Button>
 
-        <DeepThinkDialog 
-          onInsert={insertText}
-          ref={(ref) => {
-            if (ref) {
-              ref.setAttribute('aria-label', 'Deep thinking space');
-            }
-          }}
-        />
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setActiveDialog('deepThink')}
+        disabled={disabled}
+        className="bg-background/95 backdrop-blur-sm shadow-sm"
+        title="Deep Think"
+      >
+        <Brain className="h-5 w-5" />
+      </Button>
 
-        <SettingsDialog 
-          ref={(ref) => {
-            if (ref) {
-              ref.setAttribute('aria-label', 'Settings');
-            }
-          }}
-        />
-      </div>
-    </TooltipProvider>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setActiveDialog('web')}
+        disabled={disabled}
+        className="bg-background/95 backdrop-blur-sm shadow-sm"
+        title="Web Address"
+      >
+        <Globe className="h-5 w-5" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setActiveDialog('code')}
+        disabled={disabled}
+        className="bg-background/95 backdrop-blur-sm shadow-sm"
+        title="Code"
+      >
+        <Code2 className="h-5 w-5" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setActiveDialog('settings')}
+        disabled={disabled}
+        className="bg-background/95 backdrop-blur-sm shadow-sm"
+        title="Settings"
+      >
+        <Settings className="h-5 w-5" />
+      </Button>
+
+      <ImageUploadDialog
+        open={activeDialog === 'image'}
+        onOpenChange={(open) => setActiveDialog(open ? 'image' : null)}
+        onImagesUploaded={handleImageUpload}
+      />
+
+      <FileUploadDialog
+        open={activeDialog === 'file'}
+        onOpenChange={(open) => setActiveDialog(open ? 'file' : null)}
+        onFilesUploaded={handleFileUpload}
+      />
+
+      <DeepThinkDialog
+        open={activeDialog === 'deepThink'}
+        onOpenChange={(open) => setActiveDialog(open ? 'deepThink' : null)}
+        onSubmit={handleDeepThink}
+      />
+
+      <WebAddressDialog
+        open={activeDialog === 'web'}
+        onOpenChange={(open) => setActiveDialog(open ? 'web' : null)}
+        onSubmit={handleWebAddress}
+      />
+
+      <CodeInputDialog
+        open={activeDialog === 'code'}
+        onOpenChange={(open) => setActiveDialog(open ? 'code' : null)}
+        onSubmit={handleCodeInput}
+      />
+
+      <SettingsDialog
+        open={activeDialog === 'settings'}
+        onOpenChange={(open) => setActiveDialog(open ? 'settings' : null)}
+      />
+    </div>
   );
-};
-
-UtilityBarComponent.displayName = "UtilityBar";
-
-export const UtilityBar = memo(UtilityBarComponent);
+}

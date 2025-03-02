@@ -7,13 +7,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Brain } from "lucide-react";
 
-interface DeepThinkDialogProps {
-  onInsert: (text: string) => void;
+export interface DeepThinkDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (thoughts: string) => void;
 }
 
 const MAX_CHARS = 2000;
@@ -51,8 +52,11 @@ const ThoughtInput = memo(({
 
 ThoughtInput.displayName = "ThoughtInput";
 
-const DeepThinkDialogComponent = forwardRef<HTMLButtonElement, DeepThinkDialogProps>(({ onInsert }, ref) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const DeepThinkDialog = memo(({ 
+  open,
+  onOpenChange,
+  onSubmit
+}: DeepThinkDialogProps) => {
   const [thoughts, setThoughts] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -71,11 +75,11 @@ const DeepThinkDialogComponent = forwardRef<HTMLButtonElement, DeepThinkDialogPr
     setIsSubmitting(true);
     try {
       const formattedThoughts = `<deep-think>\n${thoughts.trim()}\n</deep-think>`;
-      onInsert(formattedThoughts);
-      setIsOpen(false);
+      onSubmit(formattedThoughts);
+      onOpenChange(false);
       resetForm();
     } catch (error) {
-      console.error('Failed to insert thoughts:', error);
+      console.error('Failed to submit thoughts:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -83,23 +87,12 @@ const DeepThinkDialogComponent = forwardRef<HTMLButtonElement, DeepThinkDialogPr
 
   return (
     <Dialog 
-      open={isOpen} 
-      onOpenChange={(open) => {
-        setIsOpen(open);
-        if (!open) resetForm();
+      open={open} 
+      onOpenChange={(openState) => {
+        onOpenChange(openState);
+        if (!openState) resetForm();
       }}
     >
-      <DialogTrigger asChild>
-        <Button 
-          ref={ref} 
-          variant="ghost" 
-          size="icon" 
-          className="hover:bg-muted"
-          aria-label="Deep Think"
-        >
-          <Brain className="h-5 w-5" />
-        </Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>Deep Thinking Space</DialogTitle>
@@ -121,7 +114,7 @@ const DeepThinkDialogComponent = forwardRef<HTMLButtonElement, DeepThinkDialogPr
               type="submit" 
               disabled={!thoughts.trim() || isSubmitting}
             >
-              {isSubmitting ? "Inserting..." : "Insert"}
+              {isSubmitting ? "Processing..." : "Submit"}
             </Button>
           </DialogFooter>
         </form>
@@ -130,6 +123,4 @@ const DeepThinkDialogComponent = forwardRef<HTMLButtonElement, DeepThinkDialogPr
   );
 });
 
-DeepThinkDialogComponent.displayName = "DeepThinkDialog";
-
-export const DeepThinkDialog = memo(DeepThinkDialogComponent);
+DeepThinkDialog.displayName = "DeepThinkDialog";

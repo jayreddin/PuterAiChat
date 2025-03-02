@@ -4,13 +4,13 @@ import { motion } from "framer-motion";
 import { useChatInputContext } from "@/contexts/chat-input-context";
 
 interface ChatInputProps {
-  onSend: (message: string) => void;
   value: string;
   onChange: (value: string) => void;
+  onSend: () => void;
   disabled?: boolean;
 }
 
-export function ChatInput({ onSend, value, onChange, disabled }: ChatInputProps) {
+export function ChatInput({ value, onChange, onSend, disabled }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { insertText } = useChatInputContext();
 
@@ -18,11 +18,7 @@ export function ChatInput({ onSend, value, onChange, disabled }: ChatInputProps)
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (value.trim() && !disabled) {
-        onSend(value.trim());
-        onChange("");
-        if (textareaRef.current) {
-          textareaRef.current.style.height = "auto";
-        }
+        onSend();
       }
     }
   };
@@ -40,7 +36,7 @@ export function ChatInput({ onSend, value, onChange, disabled }: ChatInputProps)
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Type a message... (Shift + Enter for new line)"
-          className="w-full resize-none min-h-[60px] max-h-[200px] border-2 border-black dark:border-white rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="w-full resize-none min-h-[60px] max-h-[200px] border-2 border-black dark:border-white rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0 pr-12"
           disabled={disabled}
         />
       </div>
