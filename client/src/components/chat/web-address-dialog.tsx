@@ -40,10 +40,18 @@ export const WebAddressDialog = memo(({
       return;
     }
 
-    if (preview.error) {
+    let formattedUrl = url.trim();
+      if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+        formattedUrl = `http://${formattedUrl}`;
+      }
+
+    // Check for URL validity after formatting
+    try {
+      new URL(formattedUrl); // Basic client-side URL validation
+    } catch (_) {
       toast({
-        title: "Preview Error",
-        description: "There was an issue loading the URL preview. Please check the URL and try again.",
+        title: "Invalid URL",
+        description: "Please enter a valid URL.",
         variant: "destructive"
       });
       return;
@@ -51,10 +59,7 @@ export const WebAddressDialog = memo(({
 
     setIsSubmitting(true);
     try {
-      let formattedUrl = url.trim();
-      if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-        formattedUrl = `http://${formattedUrl}`;
-      }
+      
       onSubmit(formattedUrl, {
         title: preview.title || undefined,
         description: preview.description || undefined
@@ -110,9 +115,11 @@ export const WebAddressDialog = memo(({
                     <span className="text-sm text-muted-foreground">Loading preview...</span>
                   </div>
                 ) : preview.error ? (
-                  <div className="p-4 bg-destructive/10 text-destructive rounded-md">
-                    <p className="text-sm font-medium">Failed to load preview</p>
-                    <p className="text-xs mt-1 text-muted-foreground">{preview.error}</p>
+                  <div className="p-4 bg-muted/50 text-muted-foreground rounded-md">
+                    <p className="text-sm font-medium">Preview not available</p>
+                    <p className="text-xs mt-1">
+                      A preview could not be generated for this URL.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -146,7 +153,7 @@ export const WebAddressDialog = memo(({
           <DialogFooter>
             <Button 
               type="submit" 
-              disabled={!url.trim() || isSubmitting || preview.loading || !!preview.error}
+              disabled={!url.trim() || isSubmitting || preview.loading}
               className="w-full sm:w-auto"
             >
               {isSubmitting ? "Processing..." : "Add to Chat"}

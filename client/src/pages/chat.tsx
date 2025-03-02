@@ -13,6 +13,7 @@ export default function ChatPage() {
   // Start with a different model than the default to avoid the initial issue
   const [currentModel, setCurrentModel] = useState("claude-3-5-sonnet");
   const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [deepThinkModelId, setDeepThinkModelId] = useState<string | null>(null); // Add deepThinkModelId state
   const { isInitialized, isLoading, error } = usePuter();
 
   // Initialize conversation after Puter is loaded or after a timeout
@@ -33,6 +34,7 @@ export default function ChatPage() {
 
   const handleModelChange = (modelId: string) => {
     setCurrentModel(modelId);
+    setDeepThinkModelId(null); // Reset deep think model on model change
     const newConversation = createNewConversation(modelId);
     setConversation(newConversation);
     saveConversation(newConversation);
@@ -44,6 +46,7 @@ export default function ChatPage() {
   };
 
   const handleNewChat = () => {
+    setDeepThinkModelId(null); // Reset deep think model on new chat
     const newConversation = createNewConversation(currentModel);
     setConversation(newConversation);
     saveConversation(newConversation);
@@ -66,6 +69,7 @@ export default function ChatPage() {
           <ModelSelect
             value={currentModel}
             onValueChange={handleModelChange}
+            isDeepThinkActive={deepThinkModelId === currentModel}
           />
         </div>
       </header>

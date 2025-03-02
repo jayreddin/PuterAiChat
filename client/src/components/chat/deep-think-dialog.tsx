@@ -86,7 +86,7 @@ export const DeepThinkDialog = memo(({
     try {
       saveSelectedModel(selectedModel);
       const formattedThoughts = `<deep-think model="${selectedModel}">\n${thoughts.trim()}\n</deep-think>`;
-      onSubmit(formattedThoughts, selectedModel);
+      onSubmit(formattedThoughts, selectedModel); // Pass selectedModel to onSubmit
       onOpenChange(false);
       resetForm();
     } catch (error) {

@@ -8,9 +8,11 @@ interface ChatInputProps {
   onChange: (value: string) => void;
   onSend: () => void;
   disabled?: boolean;
+  isDeepThinkActive?: boolean;
+  deepThinkModelName?: string;
 }
 
-export function ChatInput({ value, onChange, onSend, disabled }: ChatInputProps) {
+export function ChatInput({ value, onChange, onSend, disabled, isDeepThinkActive = false, deepThinkModelName }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { insertText } = useChatInputContext();
 
@@ -30,6 +32,11 @@ export function ChatInput({ value, onChange, onSend, disabled }: ChatInputProps)
       className="w-full bg-background"
     >
       <div className="relative w-full">
+        {isDeepThinkActive && deepThinkModelName && (
+          <div className="absolute top-1 left-4 text-xs text-muted-foreground">
+            Deep Think: {deepThinkModelName}
+          </div>
+        )}
         <div className="md:h-[108px] flex items-center py-2 md:py-0 transition-all duration-300 ease-in-out">
           <Textarea
             ref={textareaRef}

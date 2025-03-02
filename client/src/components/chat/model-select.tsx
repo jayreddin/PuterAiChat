@@ -8,13 +8,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
 interface ModelSelectProps {
   value: string;
   onValueChange: (value: string) => void;
   className?: string;
+  isDeepThinkActive?: boolean; // Add new prop
 }
 
-export function ModelSelect({ value, onValueChange, className }: ModelSelectProps) {
+export function ModelSelect({ value, onValueChange, className, isDeepThinkActive = false }: ModelSelectProps) {
   const selectedModel = reasoningModels.find(model => model.id === value);
 
   // Group models by provider
@@ -30,7 +32,7 @@ export function ModelSelect({ value, onValueChange, className }: ModelSelectProp
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="w-[220px]">
+        <SelectTrigger className={`w-[220px] ${isDeepThinkActive ? 'bg-yellow-200 dark:bg-yellow-700' : ''}`}> {/* Conditional styling */}
           <SelectValue>
             {selectedModel?.name || "Select a model"}
           </SelectValue>
@@ -50,11 +52,11 @@ export function ModelSelect({ value, onValueChange, className }: ModelSelectProp
                   <div className="flex items-center gap-2">
                     {model.logo && (
                       <img
-                        src={model.logo}
-                        alt={`${model.provider} Logo`}
-                        width={20}
-                        height={20}
-                        className="rounded-full"
+                        src={model.logo} 
+                        alt={`${model.provider} Logo`} 
+                        width={20} 
+                        height={20} 
+                        className="rounded-full" 
                       />
                     )}
                     <span>{model.name}</span>

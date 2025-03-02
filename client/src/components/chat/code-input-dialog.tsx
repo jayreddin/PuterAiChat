@@ -11,6 +11,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CodeEditor } from "./code-editor";
+import { Maximize, Settings as SettingsIcon, Minimize } from "lucide-react"; // Import Minimize icon
+import { CodeSettingsDialog } from "./code-settings-dialog.tsx"; // Import the new component with explicit extension
 
 export interface CodeInputDialogProps {
   open: boolean;
@@ -47,6 +49,8 @@ export const CodeInputDialog = memo(({
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false); // State for fullscreen
+  const [settingsOpen, setSettingsOpen] = useState(false); // State for settings dialog
 
   const resetForm = () => {
     setCode("");
@@ -73,6 +77,22 @@ export const CodeInputDialog = memo(({
     }
   };
 
+  const toggleFullScreen = () => {
+    if (!isFullScreen) {
+      // Enter fullscreen
+      const element = document.documentElement; // Or a specific element if needed
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      }
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+    setIsFullScreen(!isFullScreen);
+  };
+
   return (
     <Dialog 
       open={open} 
@@ -81,11 +101,31 @@ export const CodeInputDialog = memo(({
         if (!openState) resetForm();
       }}
     >
-      <DialogContent className="sm:max-w-[800px] h-[90vh] p-0">
+      <DialogContent className={`sm:max-w-[800px] p-0 ${isFullScreen ? 'max-w-full h-screen' : ''}`}>
         <div className="h-full flex flex-col">
           <div className="p-6 pb-0">
             <DialogHeader>
-              <DialogTitle>Add Code</DialogTitle>
+              <div className="flex items-center justify-between">
+                <DialogTitle>Add Code</DialogTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSettingsOpen(true)}
+                    title="Code Settings"
+                  >
+                    <SettingsIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleFullScreen}
+                    title={isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+                  >
+                    {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
               <DialogDescription>
                 Enter code to analyze or modify. The code will be processed with syntax highlighting
                 and proper formatting.
@@ -93,8 +133,8 @@ export const CodeInputDialog = memo(({
             </DialogHeader>
           </div>
           
-          <ScrollArea className="flex-1 px-6">
-            <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          <ScrollArea className="flex-1 h-full px-6"> {/* Added h-full here */}
+            <form onSubmit={handleSubmit} className="space-y-4"> {/* Removed py-4 */}
               <Select 
                 value={language} 
                 onValueChange={setLanguage}
@@ -110,15 +150,12 @@ export const CodeInputDialog = memo(({
                   ))}
                 </SelectContent>
               </Select>
-
-              <div className="border rounded-md overflow-hidden">
                 <CodeEditor
                   value={code}
                   onChange={setCode}
                   language={language}
-                  height="400px"
+                  height="100%"
                 />
-              </div>
             </form>
           </ScrollArea>
           
@@ -135,6 +172,7 @@ export const CodeInputDialog = memo(({
             </DialogFooter>
           </div>
         </div>
+        <CodeSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
       </DialogContent>
     </Dialog>
   );

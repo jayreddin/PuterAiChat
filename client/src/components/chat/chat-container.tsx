@@ -66,6 +66,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+  const [deepThinkModelId, setDeepThinkModelId] = useState<string | null>(null); // Add deepThinkModelId state
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const model = getModelById(conversation.model) || { name: "AI Assistant" };
   const { isInitialized: isPuterInitialized, isLoading } = usePuter();
@@ -185,6 +186,14 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
         console.error('Failed to process images:', error);
       }
     }
+  
+    // Check for deep think format and extract model
+    const deepThinkMatch = message.match(/<deep-think model="([^"]+)">/);
+    if (deepThinkMatch) {
+      const modelId = deepThinkMatch[1];
+      setDeepThinkModelId(modelId); // Update deepThinkModelId
+      console.log('Deep think model ID set:', modelId)
+    }
 
     // Add user message
     const updatedConvo = addMessage(conversation.id, {
@@ -251,6 +260,9 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
     setShowHistory(false);
   };
 
+  const isDeepThinkActive = deepThinkModelId === conversation.model;
+  const deepThinkModelName = isDeepThinkActive ? (getModelById(deepThinkModelId)?.name || undefined) : undefined;
+
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto px-4" ref={ref}>
       <div className="flex-1 relative">
@@ -270,7 +282,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
             </div>
           )}
           
-          {conversation.messages.slice().reverse().map((message) => ( // Reverse message order here
+          {conversation.messages.slice().reverse().map((message) => (
             <ChatBubble
               key={message.id}
               message={message}
@@ -278,7 +290,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
                 setInputValue(content);
                 setUploadedImages([]);
               }}
-              />
+            />
           ))}
 
           {isTyping && (
@@ -333,6 +345,8 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
               onChange={setInputValue}
               onSend={handleSend}
               disabled={isTyping || isLoading || !isPuterInitialized}
+              isDeepThinkActive={isDeepThinkActive}
+              deepThinkModelName={deepThinkModelName}
             />
           </div>
 

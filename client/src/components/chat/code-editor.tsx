@@ -13,6 +13,7 @@ export interface CodeEditorProps {
   theme?: 'vs-dark' | 'vs-light';
   height?: string;
   readOnly?: boolean;
+  className?: string; // Add className prop
 }
 
 interface LanguageConfig {
@@ -54,6 +55,7 @@ export const CodeEditor = memo(({
   theme = 'vs-dark',
   height = '300px',
   readOnly = false,
+  className
 }: CodeEditorProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
@@ -159,51 +161,8 @@ export const CodeEditor = memo(({
   }
 
   return (
-    <div className="relative rounded-md border my-4 bg-background shadow-sm">
-      <div className="flex items-center justify-between px-4 py-2 border-b">
-        <div className="flex items-center space-x-2">
-          <div className="text-sm font-medium">{langConfig.label}</div>
-          {isLoading && (
-            <div className="animate-pulse h-2 w-2 rounded-full bg-muted-foreground" />
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          {!readOnly && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={formatDocument}
-              disabled={isLoading}
-            >
-              Format
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCopy}
-            disabled={isLoading}
-          >
-            {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-          </Button>
-        </div>
-      </div>
-
-      {!readOnly && (
-        <div className="flex justify-end px-4 py-2">
-          <select
-            value={language}
-            onChange={(e) => onLanguageChange?.(e.target.value)}
-            className="bg-muted text-foreground px-2 py-1 text-sm rounded border border-input"
-          >
-            {SUPPORTED_LANGUAGES.map(lang => (
-              <option key={lang.value} value={lang.value}>
-                {lang.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+    <div className={`relative rounded-md border my-4 bg-background shadow-sm ${className}`}>
+     
 
       <div className="p-4">
         <Editor
