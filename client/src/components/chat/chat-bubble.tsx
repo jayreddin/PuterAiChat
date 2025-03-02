@@ -62,24 +62,22 @@ export function ChatBubble({ message, onEdit }: ChatBubbleProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-8`}
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
+      className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-1.5`}
     >
-      <div className={`flex items-center gap-2 text-sm mb-2 ${
-        isUser ? 'text-primary/70' : 'text-muted-foreground'
+      <div className={`flex items-center gap-2 text-xs mb-1 font-medium ${
+        isUser ? 'text-black dark:text-white' : 'text-gray-800 dark:text-gray-200'
       }`}>
-        <span className="font-medium">{isUser ? 'You' : 'AI'}</span>
-        <span className="opacity-60">{format(message.timestamp, 'h:mm a')}</span>
+        <span>{isUser ? 'You' : 'AI'}</span>
+        <span className="text-gray-600 dark:text-gray-400">{format(message.timestamp, 'h:mm a')}</span>
       </div>
 
       <div className={`
-        relative max-w-[85%] rounded-xl p-4 shadow-sm
-        ${isUser ? 
-          'bg-blue-500 text-white dark:bg-blue-600' : 
-          'bg-green-500 text-white dark:bg-green-600'
+        max-w-[85%] rounded-xl p-2 shadow-sm border
+        ${isUser ?
+          'bg-blue-500 text-white dark:bg-blue-600 border-black dark:border-white' :
+          'bg-green-500 text-white dark:bg-green-600 border-black dark:border-white'
         }
-        ${isUser ? 'ml-8' : 'mr-8'}
+        ${isUser ? 'ml-6' : 'mr-6'}
       `}>
         {parts.map((part, index) => (
           part.type === 'code' ? (
@@ -92,40 +90,32 @@ export function ChatBubble({ message, onEdit }: ChatBubbleProps) {
               height="200px"
             />
           ) : (
-            <p key={index} className="whitespace-pre-wrap leading-relaxed">
+            <p key={index} className="whitespace-pre-wrap leading-snug">
               {part.content}
             </p>
           )
         ))}
+      </div>
 
-        {showActions && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`absolute ${isUser ? 'left-0' : 'right-0'} top-0 -translate-y-full pt-2 flex gap-1`}
+      <div className={`flex gap-1 ${isUser ? 'mr-1' : 'ml-1'} mt-0.5`}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={copyToClipboard}
+          className="h-6 hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          <Copy className="h-3.5 w-3.5 text-black dark:text-white" />
+        </Button>
+
+        {isUser && onEdit && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(message.content)}
+            className="h-6 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={copyToClipboard}
-              className="h-8 bg-background/95 backdrop-blur-sm shadow-sm"
-            >
-              <Copy className="h-4 w-4 mr-1" />
-              Copy
-            </Button>
-
-            {isUser && onEdit && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onEdit(message.content)}
-                className="h-8 bg-background/95 backdrop-blur-sm shadow-sm"
-              >
-                <Edit2 className="h-4 w-4 mr-1" />
-                Edit
-              </Button>
-            )}
-          </motion.div>
+            <Edit2 className="h-3.5 w-3.5 text-black dark:text-white" />
+          </Button>
         )}
       </div>
     </motion.div>

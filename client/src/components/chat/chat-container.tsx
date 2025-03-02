@@ -1,13 +1,15 @@
 import { useEffect, useRef, forwardRef, useState } from "react";
 import { Message, Conversation } from "@shared/schema";
+import { InputButtons } from "./input-buttons";
 import { usePuter } from "@/contexts/puter-context";
 import { ChatBubble } from "./chat-bubble";
 import { ChatInput } from "./chat-input";
 import { getModelById } from "@/lib/models";
+import { ModelIndicator } from "./model-indicator";
 import { addMessage } from "@/lib/storage";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Clock, X, Send } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { MessageBlock, ImageDescription, PuterAPI } from "@/types/puter";
@@ -68,15 +70,12 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
   const model = getModelById(conversation.model) || { name: "AI Assistant" };
   const { isInitialized: isPuterInitialized, isLoading } = usePuter();
 
-  const scrollToTop = () => {
-    const container = document.querySelector('.chat-messages');
-    if (container) {
-      container.scrollTop = 0;
-    }
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   };
 
   useEffect(() => {
-    scrollToTop();
+    scrollToBottom();
   }, [conversation.messages]);
 
   useEffect(() => {
@@ -100,7 +99,6 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
     setInputValue("");
     setUploadedImages([]);
     setIsTyping(false);
-    scrollToTop();
   };
 
   const handleNewChat = () => {
@@ -257,7 +255,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
     <div className="flex flex-col h-full max-w-4xl mx-auto px-4" ref={ref}>
       <div className="flex-1 relative">
         <div className="chat-messages absolute inset-0 overflow-y-auto p-6 mb-4 border-2 border-black rounded-xl [&::-webkit-scrollbar]:hidden dark:border-white">
-          {!isPuterInitialized && !isLoading && (
+          {!isPuterInitialized && !isLoading ? (
             <div className="p-4 mb-4 bg-yellow-100 text-yellow-800 rounded-md">
               <h3 className="font-bold">Puter AI Not Connected</h3>
               <p>
@@ -266,9 +264,13 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
                 <br />- Refresh the page and try again
               </p>
             </div>
+          ) : (
+            <div className="mb-4">
+              <ModelIndicator modelId={conversation.model} className="pl-2" />
+            </div>
           )}
           
-          {[...conversation.messages].reverse().map((message) => (
+          {conversation.messages.slice().reverse().map((message) => ( // Reverse message order here
             <ChatBubble
               key={message.id}
               message={message}
@@ -276,7 +278,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
                 setInputValue(content);
                 setUploadedImages([]);
               }}
-            />
+              />
           ))}
 
           {isTyping && (
@@ -293,7 +295,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
         </div>
       </div>
 
-      <div className="sticky bottom-0 pt-4 pb-8 bg-background">
+      <div className="sticky bottom-0 pt-2 pb-4 bg-background">
         {uploadedImages.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {uploadedImages.map((image) => (
@@ -314,43 +316,34 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
           </div>
         )}
 
-        <div className="flex items-center gap-2 mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNewChat}
-            title="New Chat"
-            className="bg-background/95 backdrop-blur-sm shadow-sm"
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowHistory(true)}
-            title="Chat History"
-            className="bg-background/95 backdrop-blur-sm shadow-sm"
-          >
-            <Clock className="h-5 w-5" />
-          </Button>
+        <div className="flex flex-col md:flex-row gap-2 mb-4 transition-all duration-300 ease-in-out">
+          {/* Left buttons */}
+          <div>
+            <InputButtons
+              onNewChat={handleNewChat}
+              onHistory={() => setShowHistory(true)}
+              placement="left"
+            />
+          </div>
 
-          <div className="flex-1 relative">
+          {/* Main input */}
+          <div className="flex-1">
             <ChatInput
               value={inputValue}
               onChange={setInputValue}
               onSend={handleSend}
               disabled={isTyping || isLoading || !isPuterInitialized}
             />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSend}
-              disabled={!inputValue.trim() && uploadedImages.length === 0 || isTyping || isLoading || !isPuterInitialized}
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-              title="Send"
-            >
-              <Send className="h-5 w-5 text-black dark:text-white" />
-            </Button>
+          </div>
+
+          {/* Right buttons */}
+          <div>
+            <InputButtons
+              onSend={handleSend}
+              onMicInput={(text) => setInputValue(text)}
+              sendDisabled={!inputValue.trim() && uploadedImages.length === 0 || isTyping || isLoading || !isPuterInitialized}
+              placement="right"
+            />
           </div>
         </div>
       </div>

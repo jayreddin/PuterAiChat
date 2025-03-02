@@ -1,83 +1,172 @@
-import { SiOpenai, SiGooglecloud, SiMeta } from "react-icons/si";
-import { IconType } from "react-icons";
-
-export interface AIModel {
+export interface ReasoningModel {
   id: string;
   name: string;
+  description: string;
+  isAvailable: boolean;
   provider: string;
-  description?: string;
+  logo?: string; // Optional logo URL or component name
 }
 
-export interface ProviderGroup {
-  name: string;
-  icon: IconType;
-  models: AIModel[];
-  color: string;
-}
-
-export const modelGroups: ProviderGroup[] = [
+export const reasoningModels: ReasoningModel[] = [
   {
-    name: "OpenAI",
-    icon: SiOpenai,
-    color: "text-green-500",
-    models: [
-      { id: "gpt-4o-mini", name: "GPT-4 Mini", provider: "OpenAI" },
-      { id: "gpt-4o", name: "GPT-4", provider: "OpenAI" },
-      { id: "o3-mini", name: "O3 Mini", provider: "OpenAI" }
-    ]
+    id: "gpt-4o-mini",
+    name: "GPT 4o Mini",
+    description: "OpenAI",
+    isAvailable: true,
+    provider: "OpenAI",
+    logo: "/logos/openai.svg" // Example logo path
   },
   {
-    name: "Anthropic",
-    icon: SiOpenai, // Using OpenAI icon as placeholder
-    color: "text-blue-500",
-    models: [
-      { id: "claude-3-7-sonnet", name: "Claude 3.7 Sonnet", provider: "Anthropic" },
-      { id: "claude-3-5-sonnet", name: "Claude 3.5 Sonnet", provider: "Anthropic" }
-    ]
+    id: "gpt-4o",
+    name: "GPT 4o",
+    description: "OpenAI",
+    isAvailable: true,
+    provider: "OpenAI",
+    logo: "/logos/openai.svg"
   },
   {
-    name: "Google",
-    icon: SiGooglecloud,
-    color: "text-yellow-500",
-    models: [
-      { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", provider: "Google" },
-      { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash", provider: "Google" }
-    ]
+    id: "o3-mini",
+    name: "o3 Mini",
+    description: "OpenAI",
+    isAvailable: true,
+    provider: "OpenAI",
+    logo: "/logos/openai.svg"
   },
   {
-    name: "Mistral AI",
-    icon: SiOpenai, // Using OpenAI icon as placeholder
-    color: "text-purple-500",
-    models: [
-      { id: "mistral-large-latest", name: "Mistral Large", provider: "Mistral AI" },
-      { id: "codestral-latest", name: "Codestral", provider: "Mistral AI" }
-    ]
+    id: "o1-mini",
+    name: "o1 Mini",
+    description: "OpenAI",
+    isAvailable: true,
+    provider: "OpenAI",
+    logo: "/logos/openai.svg"
   },
   {
-    name: "Others",
-    icon: SiOpenai, // Using OpenAI icon as placeholder
-    color: "text-gray-500",
-    models: [
-      { id: "deepseek-chat", name: "DeepSeek Chat", provider: "High-Flyer" },
-      { id: "deepseek-reasoner", name: "DeepSeek Reasoner", provider: "High-Flyer" },
-      { id: "google/gemma-2-27b-it", name: "Gemma 2 27B", provider: "Groq" },
-      { id: "grok-beta", name: "Grok Beta", provider: "xAI" }
-    ]
+    id: "claude-3-5-sonnet",
+    name: "Claude 3.5 Sonnet",
+    description: "Anthropic",
+    isAvailable: true,
+    provider: "Anthropic",
+    logo: "/logos/anthropic.svg" // Example logo path
+  },
+  {
+    id: "claude-3-7-sonnet",
+    name: "Claude 3.7 Sonnet",
+    description: "Anthropic",
+    isAvailable: true,
+    provider: "Anthropic",
+    logo: "/logos/anthropic.svg"
+  },
+  {
+    id: "deepseek-chat",
+    name: "Deepseek Chat",
+    description: "High-Flyer (DeepSeek)",
+    isAvailable: true,
+    provider: "High-Flyer (DeepSeek)",
+    logo: "/logos/deepseek.svg" // Example logo path
+  },
+  {
+    id: "deepseek-reasoner",
+    name: "Deepseek Reasoner",
+    description: "High-Flyer (DeepSeek)",
+    isAvailable: true,
+    provider: "High-Flyer (DeepSeek)",
+    logo: "/logos/deepseek.svg"
+  },
+  {
+    id: "gemini-2.0-flash",
+    name: "Gemini 2.0 Flash",
+    description: "Google",
+    isAvailable: true,
+    provider: "Google",
+    logo: "/logos/google.svg" // Example logo path
+  },
+  {
+    id: "gemini-1.5-flash",
+    name: "Gemini 1.5 Flash",
+    description: "Google",
+    isAvailable: true,
+    provider: "Google",
+    logo: "/logos/google.svg"
+  },
+  {
+    id: "google/gemma-2-27b-it",
+    name: "Gemma 2 it",
+    description: "Google",
+    isAvailable: true,
+    provider: "Google",
+    logo: "/logos/google.svg"
+  },
+  {
+    id: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+    name: "Meta Llama 3.1 8B Turbo",
+    description: "Together.ai",
+    isAvailable: true,
+    provider: "Together.ai",
+    logo: "/logos/togetherai.svg" // Example logo path
+  },
+  {
+    id: "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+    name: "Meta Llama 3.1 70B Turbo",
+    description: "Together.ai",
+    isAvailable: true,
+    provider: "Together.ai",
+    logo: "/logos/togetherai.svg"
+  },
+  {
+    id: "meta-llama/Meta-Llama-3.1-405B-Instruct Turbo",
+    name: "Meta Llama 3.1 405B Turbo",
+    description: "Together.ai",
+    isAvailable: true,
+    provider: "Together.ai",
+    logo: "/logos/togetherai.svg"
+  },
+  {
+    id: "mistral-large-latest",
+    name: "Mistral Large",
+    description: "Mistral AI",
+    isAvailable: true,
+    provider: "Mistral AI",
+    logo: "/logos/mistralai.svg" // Example logo path
+  },
+  {
+    id: "pixtral-large-latest",
+    name: "Pixtral Large",
+    description: "Mistral AI",
+    isAvailable: true,
+    provider: "Mistral AI",
+    logo: "/logos/mistralai.svg"
+  },
+  {
+    id: "codestral-latest",
+    name: "Codestral",
+    description: "Mistral AI",
+    isAvailable: true,
+    provider: "Mistral AI",
+    logo: "/logos/mistralai.svg"
+  },
+  {
+    id: "grok-beta",
+    name: "Grok Beta",
+    description: "xAI",
+    isAvailable: true,
+    provider: "xAI",
+    logo: "/logos/xai.svg" // Example logo path
   }
 ];
 
-export const DEFAULT_MODEL = "gpt-4o-mini";
+export const getModelById = (id: string): ReasoningModel | undefined => {
+  return reasoningModels.find(model => model.id === id);
+};
 
-export function getModelById(id: string): AIModel | undefined {
-  for (const group of modelGroups) {
-    const model = group.models.find(m => m.id === id);
-    if (model) return model;
-  }
-  return undefined;
-}
+export const getDefaultModel = (): ReasoningModel => {
+  return reasoningModels[0];
+};
 
-export function getProviderGroupForModel(id: string): ProviderGroup | undefined {
-  return modelGroups.find(group =>
-    group.models.some(model => model.id === id)
-  );
-}
+export const saveSelectedModel = (modelId: string): void => {
+  localStorage.setItem('selectedReasoningModel', modelId);
+};
+
+export const loadSavedModel = (): ReasoningModel => {
+  const savedModelId = localStorage.getItem('selectedReasoningModel');
+  return getModelById(savedModelId || 'gpt-4o-mini') || getDefaultModel();
+};

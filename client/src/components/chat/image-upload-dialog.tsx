@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
-import { X } from "lucide-react";
+import { X, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useDropzone } from "react-dropzone";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ImagePreviewModal } from "./image-preview-modal";
 import { toast } from "@/hooks/use-toast";
 import { usePuter } from "@/contexts/puter-context";
 import type { PuterAPI } from "@/types/puter";
@@ -14,6 +16,7 @@ interface UploadingImage {
   preview: string;
   progress: number;
   status: "uploading" | "complete" | "error";
+  error?: string;
 }
 
 export interface ImageUploadDialogProps {
@@ -21,6 +24,9 @@ export interface ImageUploadDialogProps {
   onOpenChange: (open: boolean) => void;
   onImagesUploaded: (images: { id: string; url: string }[]) => void;
 }
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILES = 10;
 
 function isPuterImageUploadAvailable(puter: PuterAPI | undefined): boolean {
   return !!(puter?.ai?.uploadImage);
@@ -32,6 +38,7 @@ export const ImageUploadDialog = ({
   onImagesUploaded
 }: ImageUploadDialogProps) => {
   const [uploadingImages, setUploadingImages] = useState<UploadingImage[]>([]);
+  const [selectedPreview, setSelectedPreview] = useState<string | null>(null);
   const { isInitialized: isPuterInitialized } = usePuter();
 
   const resetForm = () => {
@@ -41,6 +48,7 @@ export const ImageUploadDialog = ({
       }
     });
     setUploadingImages([]);
+    setSelectedPreview(null);
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -53,7 +61,30 @@ export const ImageUploadDialog = ({
       return;
     }
 
-    const newImages: UploadingImage[] = acceptedFiles.map(file => ({
+    // Filter out files that are too large
+    const validFiles = acceptedFiles.filter(file => {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: "File Too Large",
+          description: `${file.name} exceeds the maximum file size of 10MB`,
+          variant: "destructive"
+        });
+        return false;
+      }
+      return true;
+    });
+
+    // Check if adding these files would exceed the maximum
+    if (uploadingImages.length + validFiles.length > MAX_FILES) {
+      toast({
+        title: "Too Many Files",
+        description: `Maximum of ${MAX_FILES} files allowed`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newImages: UploadingImage[] = validFiles.map(file => ({
       id: Math.random().toString(36).slice(2),
       file,
       preview: URL.createObjectURL(file),
@@ -87,12 +118,17 @@ export const ImageUploadDialog = ({
         }
       } catch (error) {
         console.error("Failed to upload image:", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
         setUploadingImages(prev => prev.map(img => 
-          img.id === image.id ? { ...img, status: "error" } : img
+          img.id === image.id ? { 
+            ...img, 
+            status: "error",
+            error: `Upload failed: ${errorMessage}`
+          } : img
         ));
         toast({
           title: "Upload Error",
-          description: "Failed to upload image. Please try again.",
+          description: `Failed to upload ${image.file.name}. Please try again.`,
           variant: "destructive"
         });
       }
@@ -105,7 +141,9 @@ export const ImageUploadDialog = ({
       "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"]
     },
     multiple: true,
-    disabled: !isPuterInitialized
+    disabled: !isPuterInitialized,
+    maxSize: MAX_FILE_SIZE,
+    maxFiles: MAX_FILES
   });
 
   const removeImage = (id: string) => {
@@ -133,81 +171,133 @@ export const ImageUploadDialog = ({
     }
   };
 
+  const failedUploads = uploadingImages.filter(img => img.status === "error").length;
+  const hasCompletedUploads = uploadingImages.some(img => img.status === "complete");
+
   return (
-    <Dialog 
-      open={open} 
-      onOpenChange={(openState) => {
-        onOpenChange(openState);
-        if (!openState) {
-          resetForm();
-        }
-      }}
-    >
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Upload Images</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog 
+        open={open} 
+        onOpenChange={(openState) => {
+          onOpenChange(openState);
+          if (!openState) {
+            resetForm();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Upload Images</DialogTitle>
+          </DialogHeader>
 
-        <div
-          {...getRootProps()}
-          className={`
-            border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-            transition-colors duration-200 ease-in-out
-            ${isDragActive ? "border-primary bg-primary/5" : "border-muted"}
-            ${!isPuterInitialized ? "opacity-50 cursor-not-allowed" : "hover:border-primary hover:bg-primary/5"}
-          `}
-        >
-          <input {...getInputProps()} />
-          {!isPuterInitialized ? (
-            <p>Please wait while the upload service initializes...</p>
-          ) : isDragActive ? (
-            <p>Drop the images here ...</p>
-          ) : (
-            <p>Drag & drop images here, or click to select files</p>
+          {!isPuterInitialized && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Service Initializing</AlertTitle>
+              <AlertDescription>
+                Please wait while the upload service initializes...
+              </AlertDescription>
+            </Alert>
           )}
-        </div>
 
-        {uploadingImages.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
-            {uploadingImages.map((image) => (
-              <div key={image.id} className="relative group">
-                <div className="relative aspect-square rounded-lg overflow-hidden border">
-                  <img
-                    src={image.preview}
-                    alt="Upload preview"
-                    className="object-cover w-full h-full"
-                  />
-                  <button
-                    onClick={() => removeImage(image.id)}
-                    className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                {image.status === "uploading" && (
-                  <Progress value={image.progress} className="mt-2" />
-                )}
-                {image.status === "error" && (
-                  <p className="text-sm text-red-500 mt-1">Upload failed</p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleApply}
-            disabled={!uploadingImages.some(img => img.status === "complete")}
+          <div
+            {...getRootProps()}
+            className={`
+              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+              transition-colors duration-200 ease-in-out
+              ${isDragActive ? "border-primary bg-primary/5" : "border-muted"}
+              ${!isPuterInitialized ? "opacity-50 cursor-not-allowed" : "hover:border-primary hover:bg-primary/5"}
+            `}
           >
-            Apply
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <input {...getInputProps()} />
+            <div className="flex flex-col items-center gap-2">
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+              {!isPuterInitialized ? (
+                <p>Upload service initializing...</p>
+              ) : isDragActive ? (
+                <p>Drop the images here ...</p>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    Drag & drop images here, or click to select files
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Supports PNG, JPG, GIF, WebP up to 10MB
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
+          {uploadingImages.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
+              {uploadingImages.map((image) => (
+                <div key={image.id} className="relative group">
+                  <div 
+                    className="relative aspect-square rounded-lg overflow-hidden border cursor-pointer"
+                    onClick={() => setSelectedPreview(image.preview)}
+                  >
+                    <img
+                      src={image.preview}
+                      alt={`Upload preview ${image.file.name}`}
+                      className="object-cover w-full h-full"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage(image.id);
+                      }}
+                      className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {image.status === "uploading" && (
+                    <Progress value={image.progress} className="mt-2" />
+                  )}
+                  {image.status === "error" && (
+                    <div className="mt-1 p-1 bg-destructive/10 rounded text-xs text-destructive">
+                      {image.error || "Upload failed"}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {failedUploads > 0 && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Upload Failed</AlertTitle>
+              <AlertDescription>
+                {failedUploads} {failedUploads === 1 ? "image" : "images"} failed to upload.
+                Please try again or remove failed uploads.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleApply}
+              disabled={!hasCompletedUploads}
+            >
+              Apply
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {selectedPreview && (
+        <ImagePreviewModal
+          src={selectedPreview}
+          open={true}
+          onOpenChange={(open) => !open && setSelectedPreview(null)}
+        />
+      )}
+    </>
   );
 };
 

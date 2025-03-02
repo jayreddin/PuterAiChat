@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { CodeEditor } from "./code-editor";
 
 export interface CodeInputDialogProps {
@@ -80,51 +81,60 @@ export const CodeInputDialog = memo(({
         if (!openState) resetForm();
       }}
     >
-      <DialogContent className="sm:max-w-[800px]">
-        <DialogHeader>
-          <DialogTitle>Add Code</DialogTitle>
-          <DialogDescription>
-            Enter code to analyze or modify. The code will be processed with syntax highlighting
-            and proper formatting.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-4">
-            <Select 
-              value={language} 
-              onValueChange={setLanguage}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Language" />
-              </SelectTrigger>
-              <SelectContent>
-                {SUPPORTED_LANGUAGES.map(lang => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="border rounded-md">
-              <CodeEditor
-                value={code}
-                onChange={setCode}
-                language={language}
-                height="400px"
-              />
-            </div>
+      <DialogContent className="sm:max-w-[800px] h-[90vh] p-0">
+        <div className="h-full flex flex-col">
+          <div className="p-6 pb-0">
+            <DialogHeader>
+              <DialogTitle>Add Code</DialogTitle>
+              <DialogDescription>
+                Enter code to analyze or modify. The code will be processed with syntax highlighting
+                and proper formatting.
+              </DialogDescription>
+            </DialogHeader>
           </div>
+          
+          <ScrollArea className="flex-1 px-6">
+            <form onSubmit={handleSubmit} className="space-y-4 py-4">
+              <Select 
+                value={language} 
+                onValueChange={setLanguage}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPPORTED_LANGUAGES.map(lang => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-          <DialogFooter>
-            <Button 
-              type="submit" 
-              disabled={!code.trim() || isSubmitting}
-            >
-              {isSubmitting ? "Processing..." : "Submit"}
-            </Button>
-          </DialogFooter>
-        </form>
+              <div className="border rounded-md overflow-hidden">
+                <CodeEditor
+                  value={code}
+                  onChange={setCode}
+                  language={language}
+                  height="400px"
+                />
+              </div>
+            </form>
+          </ScrollArea>
+          
+          <div className="p-6 pt-0">
+            <DialogFooter>
+              <Button 
+                type="submit"
+                onClick={handleSubmit}
+                disabled={!code.trim() || isSubmitting}
+                className="w-full sm:w-auto"
+              >
+                {isSubmitting ? "Processing..." : "Submit Code"}
+              </Button>
+            </DialogFooter>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

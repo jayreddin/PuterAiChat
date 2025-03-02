@@ -1,54 +1,87 @@
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { modelGroups } from "@/lib/models";
-import { ChevronDown } from "lucide-react";
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel, SelectSeparator } from "@/components/ui/select";
+import { reasoningModels, ReasoningModel } from "@/lib/models";
+import { Button } from "@/components/ui/button";
+import { Info } from "lucide-react";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 interface ModelSelectProps {
   value: string;
-  onChange: (value: string) => void;
+  onValueChange: (value: string) => void;
+  className?: string;
 }
 
-export function ModelSelect({ value, onChange }: ModelSelectProps) {
-  const currentModel = modelGroups
-    .flatMap(group => group.models)
-    .find(model => model.id === value);
+export function ModelSelect({ value, onValueChange, className }: ModelSelectProps) {
+  const selectedModel = reasoningModels.find(model => model.id === value);
+
+  // Group models by provider
+  const groupedModels = reasoningModels.reduce((groups, model) => {
+    const provider = model.provider;
+    if (!groups[provider]) {
+      groups[provider] = [];
+    }
+    groups[provider].push(model);
+    return groups;
+  }, {} as { [provider: string]: ReasoningModel[] });
 
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-auto min-w-[200px] border-none focus:ring-0 focus:ring-offset-0 p-0 [&>svg]:hidden">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-bold">
-            {currentModel?.name || "Select a model"}
-          </span>
-          <ChevronDown className="h-4 w-4 opacity-50" />
-        </div>
-      </SelectTrigger>
-      <SelectContent>
-        {modelGroups.map((group) => (
-          <SelectGroup key={group.name}>
-            <SelectLabel className="flex items-center gap-2 text-sm">
-              <group.icon className={`h-3 w-3 ${group.color}`} />
-              {group.name}
-            </SelectLabel>
-            {group.models.map((model) => (
-              <SelectItem
-                key={model.id}
-                value={model.id}
-                className="pl-6 text-sm"
-              >
-                {model.name}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className={`flex items-center gap-2 ${className}`}>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger className="w-[220px]">
+          <SelectValue>
+            {selectedModel?.name || "Select a model"}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(groupedModels).map(([provider, models]) => (
+            <SelectGroup key={provider}>
+              <SelectLabel>{provider}</SelectLabel>
+              <SelectSeparator />
+              {models.map((model) => (
+                <SelectItem
+                  key={model.id}
+                  value={model.id}
+                  disabled={!model.isAvailable}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    {model.logo && (
+                      <img
+                        src={model.logo}
+                        alt={`${model.provider} Logo`}
+                        width={20}
+                        height={20}
+                        className="rounded-full"
+                      />
+                    )}
+                    <span>{model.name}</span>
+                    <TooltipProvider delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => e.preventDefault()}
+                          >
+                            <Info className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-[250px]">
+                          <p>{model.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { memo, useState, forwardRef, FormEvent, ChangeEvent } from "react";
+import { memo, useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,11 +10,14 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Brain } from "lucide-react";
+import { ModelSelect } from "./model-select";
+import { ExampleButton } from "./example-button";
+import { loadSavedModel, saveSelectedModel } from "@/lib/models";
 
 export interface DeepThinkDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (thoughts: string) => void;
+  onSubmit: (thoughts: string, modelId: string) => void;
 }
 
 const MAX_CHARS = 2000;
@@ -58,7 +61,14 @@ export const DeepThinkDialog = memo(({
   onSubmit
 }: DeepThinkDialogProps) => {
   const [thoughts, setThoughts] = useState("");
+  const [selectedModel, setSelectedModel] = useState(loadSavedModel().id);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setSelectedModel(loadSavedModel().id);
+    }
+  }, [open]);
 
   const resetForm = () => {
     setThoughts("");
@@ -74,8 +84,9 @@ export const DeepThinkDialog = memo(({
 
     setIsSubmitting(true);
     try {
-      const formattedThoughts = `<deep-think>\n${thoughts.trim()}\n</deep-think>`;
-      onSubmit(formattedThoughts);
+      saveSelectedModel(selectedModel);
+      const formattedThoughts = `<deep-think model="${selectedModel}">\n${thoughts.trim()}\n</deep-think>`;
+      onSubmit(formattedThoughts, selectedModel);
       onOpenChange(false);
       resetForm();
     } catch (error) {
@@ -83,6 +94,10 @@ export const DeepThinkDialog = memo(({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleExampleSelect = (example: string) => {
+    setThoughts(example);
   };
 
   return (
@@ -93,12 +108,24 @@ export const DeepThinkDialog = memo(({
         if (!openState) resetForm();
       }}
     >
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Deep Thinking Space</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5" />
+              Deep Thinking Space
+            </DialogTitle>
+            <div className="flex items-center gap-2">
+              <ExampleButton onSelect={handleExampleSelect} />
+              <ModelSelect
+                value={selectedModel}
+                onValueChange={setSelectedModel}
+              />
+            </div>
+          </div>
           <DialogDescription>
             Use this space to think step-by-step about complex problems.
-            Your thoughts will be processed by the AI for deeper analysis.
+            Your thoughts will be processed by the selected AI model for deeper analysis.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -113,8 +140,9 @@ export const DeepThinkDialog = memo(({
             <Button 
               type="submit" 
               disabled={!thoughts.trim() || isSubmitting}
+              className="w-full sm:w-auto"
             >
-              {isSubmitting ? "Processing..." : "Submit"}
+              {isSubmitting ? "Processing..." : "Think Deeply"}
             </Button>
           </DialogFooter>
         </form>

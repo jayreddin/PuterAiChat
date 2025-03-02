@@ -1,0 +1,7 @@
+{
+    "github.copilot.advanced": {
+
+    },
+    "copilot.vision.provider": "Gemini",
+    "copilot.vision.model": "gemini-2.0-flash-exp"
+}

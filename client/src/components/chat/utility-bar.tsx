@@ -15,7 +15,7 @@ import { WebAddressDialog } from "./web-address-dialog";
 import { CodeInputDialog } from "./code-input-dialog";
 import { SettingsDialog } from "./settings-dialog";
 
-interface UploadedImage {
+export interface UploadedImage { // Export the UploadedImage interface
   id: string;
   url: string;
 }
@@ -142,7 +142,7 @@ export function UtilityBar({
         open={activeDialog === 'image'}
         onOpenChange={(open) => setActiveDialog(open ? 'image' : null)}
         onImagesUploaded={handleImageUpload}
-      />
+        />
 
       <FileUploadDialog
         open={activeDialog === 'file'}

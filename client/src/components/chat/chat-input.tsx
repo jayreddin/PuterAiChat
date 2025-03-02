@@ -30,15 +30,17 @@ export function ChatInput({ value, onChange, onSend, disabled }: ChatInputProps)
       className="w-full bg-background"
     >
       <div className="relative w-full">
-        <Textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message... (Shift + Enter for new line)"
-          className="w-full resize-none min-h-[60px] max-h-[200px] border-2 border-black dark:border-white rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0 pr-12"
-          disabled={disabled}
-        />
+        <div className="md:h-[108px] flex items-center py-2 md:py-0 transition-all duration-300 ease-in-out">
+          <Textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a message... (Shift + Enter for new line)"
+            className="w-full resize-none min-h-[60px] md:min-h-[90px] max-h-[90px] border-2 border-black dark:border-white rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0 hover:border-gray-600 dark:hover:border-gray-300 transition-colors duration-200"
+            disabled={disabled}
+          />
+        </div>
       </div>
     </motion.div>
   );

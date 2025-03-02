@@ -81,6 +81,7 @@ export default defineConfig({
   },
   // Development server options
   server: {
+    host: '0.0.0.0', // Listen on all interfaces (for web access)
     port: 3000,
     strictPort: true,
     hmr: {
