@@ -54,9 +54,10 @@ export default defineConfig({
     },
   },
   root: path.resolve(__dirname, "client"),
+  base: "./", // Set base URL for GitHub Pages
   // Build options
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
+    outDir: path.resolve(__dirname, "dist"), // Output to root dist folder
     emptyOutDir: true,
     // Enable minification optimizations
     minify: 'terser',
@@ -70,6 +71,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: createManualChunks,
+        // Ensure assets use relative paths
+        assetFileNames: (assetInfo) => {
+          let name = assetInfo.name || 'asset';
+          const info = name.split('.');
+          const ext = info[info.length - 1] || '';
+          const type = ext === 'css' ? 'css' : 'assets';
+          return `${type}/[name]-[hash][extname]`;
+        },
+        chunkFileNames: 'chunks/[name]-[hash].js',
+        entryFileNames: 'chunks/[name]-[hash].js',
       },
     },
     // Enable source maps in development

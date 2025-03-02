@@ -325,6 +325,20 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
         </div>
       </div>
 
+      {/* Deep Think Indicator - Moved outside chat messages box */}
+      {isDeepThinkActive && (
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full mb-2 px-4 py-2 text-sm text-muted-foreground hover:bg-accent",
+            "flex items-center justify-center gap-2"
+          )}
+          onClick={handleDeepThinkToggle}
+        >
+          Using {deepThinkModelName} for Deep Thinking
+        </Button>
+      )}
+
       <div className="sticky bottom-0 pt-2 pb-4 bg-background">
         {uploadedImages.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
@@ -344,19 +358,6 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
               </div>
             ))}
           </div>
-        )}
-
-        {isDeepThinkActive && (
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full mb-2 px-4 py-2 text-sm text-muted-foreground hover:bg-accent",
-              "flex items-center justify-center gap-2"
-            )}
-            onClick={handleDeepThinkToggle}
-          >
-            Using {deepThinkModelName} for Deep Thinking
-          </Button>
         )}
 
         <div className="flex flex-col md:flex-row gap-2 mb-4 transition-all duration-300 ease-in-out">
