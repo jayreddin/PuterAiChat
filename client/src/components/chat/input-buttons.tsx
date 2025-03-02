@@ -1,4 +1,4 @@
-import { Plus, Clock, Send, Mic } from "lucide-react";
+import { Plus, Clock, Send, Mic, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
@@ -10,8 +10,10 @@ interface InputButtonsProps {
   onHistory?: () => void;
   onSend?: () => void;
   onMicInput?: (text: string) => void;
+  onDeepThinkToggle?: () => void;
   sendDisabled?: boolean;
   placement: "left" | "right";
+  isDeepThinkActive?: boolean;
 }
 
 export function InputButtons({
@@ -19,8 +21,10 @@ export function InputButtons({
   onHistory,
   onSend,
   onMicInput,
+  onDeepThinkToggle,
   sendDisabled,
-  placement
+  placement,
+  isDeepThinkActive = false
 }: InputButtonsProps) {
   const handleResult = useCallback((transcript: string) => {
     onMicInput?.(transcript);
@@ -107,14 +111,38 @@ export function InputButtons({
 
         {placement === "right" && (
           <>
+            {onDeepThinkToggle && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onDeepThinkToggle}
+                title={isDeepThinkActive ? "Disable Deep Think" : "Deep Think"}
+                className={cn(
+                  "flex-1 bg-background shadow-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-transform duration-150",
+                  isDeepThinkActive && "bg-primary/20 dark:bg-primary/40"
+                )}
+              >
+                <Brain 
+                  className={cn(
+                    "h-5 w-5",
+                    isDeepThinkActive 
+                      ? "text-primary" 
+                      : "text-black dark:text-white"
+                  )} 
+                />
+              </Button>
+            )}
             {onSend && (
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={onSend}
+                onClick={sendDisabled ? undefined : onSend}
                 disabled={sendDisabled}
                 title="Send"
-                className="flex-1 bg-background shadow-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-transform duration-150"
+                className={cn(
+                  "flex-1 bg-background shadow-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-transform duration-150",
+                  "disabled:opacity-100"
+                )}
               >
                 <Send className="h-5 w-5 text-black dark:text-white" strokeWidth={2.5} />
               </Button>

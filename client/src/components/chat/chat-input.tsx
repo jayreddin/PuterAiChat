@@ -2,6 +2,7 @@ import { useRef, KeyboardEvent } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { useChatInputContext } from "@/contexts/chat-input-context";
+import { CodeAttachment } from "./code-attachment";
 
 interface ChatInputProps {
   value: string;
@@ -10,9 +11,24 @@ interface ChatInputProps {
   disabled?: boolean;
   isDeepThinkActive?: boolean;
   deepThinkModelName?: string;
+  codeAttachment?: {
+    filename: string;
+    language: string;
+    content: string;
+  } | null;
+  onRemoveCodeAttachment?: () => void;
 }
 
-export function ChatInput({ value, onChange, onSend, disabled, isDeepThinkActive = false, deepThinkModelName }: ChatInputProps) {
+export function ChatInput({
+  value,
+  onChange,
+  onSend,
+  disabled,
+  isDeepThinkActive = false,
+  deepThinkModelName,
+  codeAttachment,
+  onRemoveCodeAttachment
+}: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { insertText } = useChatInputContext();
 
@@ -37,6 +53,17 @@ export function ChatInput({ value, onChange, onSend, disabled, isDeepThinkActive
             Deep Think: {deepThinkModelName}
           </div>
         )}
+        
+        {codeAttachment && (
+          <div className="absolute -top-14 left-4">
+            <CodeAttachment
+              filename={codeAttachment.filename}
+              language={codeAttachment.language}
+              onRemove={onRemoveCodeAttachment || (() => {})}
+            />
+          </div>
+        )}
+
         <div className="md:h-[108px] flex items-center py-2 md:py-0 transition-all duration-300 ease-in-out">
           <Textarea
             ref={textareaRef}

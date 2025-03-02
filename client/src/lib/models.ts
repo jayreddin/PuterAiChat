@@ -4,7 +4,7 @@ export interface ReasoningModel {
   description: string;
   isAvailable: boolean;
   provider: string;
-  logo?: string; // Optional logo URL or component name
+  logo?: string;
 }
 
 export const reasoningModels: ReasoningModel[] = [
@@ -14,7 +14,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "OpenAI",
     isAvailable: true,
     provider: "OpenAI",
-    logo: "/logos/openai.svg" // Example logo path
+    logo: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/openai.svg"
   },
   {
     id: "gpt-4o",
@@ -22,7 +22,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "OpenAI",
     isAvailable: true,
     provider: "OpenAI",
-    logo: "/logos/openai.svg"
+    logo: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/openai.svg"
   },
   {
     id: "o3-mini",
@@ -30,7 +30,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "OpenAI",
     isAvailable: true,
     provider: "OpenAI",
-    logo: "/logos/openai.svg"
+    logo: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/openai.svg"
   },
   {
     id: "o1-mini",
@@ -38,7 +38,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "OpenAI",
     isAvailable: true,
     provider: "OpenAI",
-    logo: "/logos/openai.svg"
+    logo: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/openai.svg"
   },
   {
     id: "claude-3-5-sonnet",
@@ -46,7 +46,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Anthropic",
     isAvailable: true,
     provider: "Anthropic",
-    logo: "/logos/anthropic.svg" // Example logo path
+    logo: "https://api.iconify.design/simple-icons:anthropic.svg"
   },
   {
     id: "claude-3-7-sonnet",
@@ -54,7 +54,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Anthropic",
     isAvailable: true,
     provider: "Anthropic",
-    logo: "/logos/anthropic.svg"
+    logo: "https://api.iconify.design/simple-icons:anthropic.svg"
   },
   {
     id: "deepseek-chat",
@@ -62,7 +62,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "High-Flyer (DeepSeek)",
     isAvailable: true,
     provider: "High-Flyer (DeepSeek)",
-    logo: "/logos/deepseek.svg" // Example logo path
+    logo: "https://www.deepseek.com/favicon.ico"
   },
   {
     id: "deepseek-reasoner",
@@ -70,7 +70,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "High-Flyer (DeepSeek)",
     isAvailable: true,
     provider: "High-Flyer (DeepSeek)",
-    logo: "/logos/deepseek.svg"
+    logo: "https://www.deepseek.com/favicon.ico"
   },
   {
     id: "gemini-2.0-flash",
@@ -78,7 +78,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Google",
     isAvailable: true,
     provider: "Google",
-    logo: "/logos/google.svg" // Example logo path
+    logo: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/google.svg"
   },
   {
     id: "gemini-1.5-flash",
@@ -86,7 +86,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Google",
     isAvailable: true,
     provider: "Google",
-    logo: "/logos/google.svg"
+    logo: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/google.svg"
   },
   {
     id: "google/gemma-2-27b-it",
@@ -94,7 +94,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Google",
     isAvailable: true,
     provider: "Google",
-    logo: "/logos/google.svg"
+    logo: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/google.svg"
   },
   {
     id: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
@@ -102,7 +102,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Together.ai",
     isAvailable: true,
     provider: "Together.ai",
-    logo: "/logos/togetherai.svg" // Example logo path
+    logo: "https://assets-global.website-files.com/64f6f2c0e3f4c5a91c1e823a/64f6f2c0e3f4c5a91c1e8531_togetherai-logo.svg"
   },
   {
     id: "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
@@ -110,7 +110,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Together.ai",
     isAvailable: true,
     provider: "Together.ai",
-    logo: "/logos/togetherai.svg"
+    logo: "https://assets-global.website-files.com/64f6f2c0e3f4c5a91c1e823a/64f6f2c0e3f4c5a91c1e8531_togetherai-logo.svg"
   },
   {
     id: "meta-llama/Meta-Llama-3.1-405B-Instruct Turbo",
@@ -118,7 +118,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Together.ai",
     isAvailable: true,
     provider: "Together.ai",
-    logo: "/logos/togetherai.svg"
+    logo: "https://assets-global.website-files.com/64f6f2c0e3f4c5a91c1e823a/64f6f2c0e3f4c5a91c1e8531_togetherai-logo.svg"
   },
   {
     id: "mistral-large-latest",
@@ -126,7 +126,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Mistral AI",
     isAvailable: true,
     provider: "Mistral AI",
-    logo: "/logos/mistralai.svg" // Example logo path
+    logo: "https://mistral.ai/favicon.ico"
   },
   {
     id: "pixtral-large-latest",
@@ -134,7 +134,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Mistral AI",
     isAvailable: true,
     provider: "Mistral AI",
-    logo: "/logos/mistralai.svg"
+    logo: "https://mistral.ai/favicon.ico"
   },
   {
     id: "codestral-latest",
@@ -142,7 +142,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "Mistral AI",
     isAvailable: true,
     provider: "Mistral AI",
-    logo: "/logos/mistralai.svg"
+    logo: "https://mistral.ai/favicon.ico"
   },
   {
     id: "grok-beta",
@@ -150,7 +150,7 @@ export const reasoningModels: ReasoningModel[] = [
     description: "xAI",
     isAvailable: true,
     provider: "xAI",
-    logo: "/logos/xai.svg" // Example logo path
+    logo: "https://x.ai/favicon.ico"
   }
 ];
 

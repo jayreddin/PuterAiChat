@@ -13,7 +13,7 @@ interface ModelSelectProps {
   value: string;
   onValueChange: (value: string) => void;
   className?: string;
-  isDeepThinkActive?: boolean; // Add new prop
+  isDeepThinkActive?: boolean;
 }
 
 export function ModelSelect({ value, onValueChange, className, isDeepThinkActive = false }: ModelSelectProps) {
@@ -32,51 +32,76 @@ export function ModelSelect({ value, onValueChange, className, isDeepThinkActive
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className={`w-[220px] ${isDeepThinkActive ? 'bg-yellow-200 dark:bg-yellow-700' : ''}`}> {/* Conditional styling */}
+        <SelectTrigger 
+          className={`w-[220px] ${
+            isDeepThinkActive 
+              ? 'bg-yellow-200 dark:bg-yellow-700' 
+              : ''
+          }`}
+        >
           <SelectValue>
-            {selectedModel?.name || "Select a model"}
+            <div className="flex items-center gap-2">
+              {selectedModel?.logo && (
+                <div className="w-5 h-5 flex-shrink-0">
+                  <img
+                    src={selectedModel.logo}
+                    alt={`${selectedModel.provider} Logo`}
+                    className="w-full h-full object-contain dark:invert"
+                  />
+                </div>
+              )}
+              <span className="truncate">{selectedModel?.name || "Select a model"}</span>
+            </div>
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {Object.entries(groupedModels).map(([provider, models]) => (
             <SelectGroup key={provider}>
-              <SelectLabel>{provider}</SelectLabel>
-              <SelectSeparator />
+              <SelectLabel className="font-semibold px-2 py-1.5 flex items-center gap-2">
+                {models[0]?.logo && (
+                  <div className="w-4 h-4 flex-shrink-0">
+                    <img
+                      src={models[0].logo}
+                      alt={`${provider} Logo`}
+                      className="w-full h-full object-contain dark:invert"
+                    />
+                  </div>
+                )}
+                {provider}
+              </SelectLabel>
+              <SelectSeparator className="my-1" />
               {models.map((model) => (
                 <SelectItem
                   key={model.id}
                   value={model.id}
                   disabled={!model.isAvailable}
-                  className="flex items-center justify-between"
+                  className="py-2"
                 >
-                  <div className="flex items-center gap-2">
-                    {model.logo && (
-                      <img
-                        src={model.logo} 
-                        alt={`${model.provider} Logo`} 
-                        width={20} 
-                        height={20} 
-                        className="rounded-full" 
-                      />
-                    )}
-                    <span>{model.name}</span>
-                    <TooltipProvider delayDuration={300}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                            onClick={(e) => e.preventDefault()}
+                  <div className="flex items-center justify-between w-full gap-2">
+                    <div className="flex items-center flex-1 min-w-0 gap-2">
+                      <span className="truncate flex-1">{model.name}</span>
+                      <TooltipProvider delayDuration={300}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 flex-shrink-0 hover:bg-accent rounded-full"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Info className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent 
+                            side="right" 
+                            className="max-w-[250px] text-sm"
+                            align="start"
                           >
-                            <Info className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="right" className="max-w-[250px]">
-                          <p>{model.description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                            <p>{model.description}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </div>
                 </SelectItem>
               ))}

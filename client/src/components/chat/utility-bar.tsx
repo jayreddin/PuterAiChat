@@ -15,9 +15,15 @@ import { WebAddressDialog } from "./web-address-dialog";
 import { CodeInputDialog } from "./code-input-dialog";
 import { SettingsDialog } from "./settings-dialog";
 
-export interface UploadedImage { // Export the UploadedImage interface
+export interface UploadedImage {
   id: string;
   url: string;
+}
+
+export interface CodeAttachment {
+  filename: string;
+  language: string;
+  content: string;
 }
 
 interface UtilityBarProps {
@@ -25,7 +31,7 @@ interface UtilityBarProps {
   onFileUploaded?: (files: { id: string; url: string; name: string }[]) => void;
   onDeepThink?: (prompt: string) => void;
   onWebAddress?: (url: string) => void;
-  onCodeInput?: (code: string, language: string) => void;
+  onCodeSubmit?: (attachment: CodeAttachment) => void;
   disabled?: boolean;
 }
 
@@ -36,7 +42,7 @@ export function UtilityBar({
   onFileUploaded,
   onDeepThink,
   onWebAddress,
-  onCodeInput,
+  onCodeSubmit,
   disabled
 }: UtilityBarProps) {
   const [activeDialog, setActiveDialog] = useState<DialogType | null>(null);
@@ -55,8 +61,8 @@ export function UtilityBar({
     handleDialogClose();
   };
 
-  const handleCodeInput = (code: string, language: string) => {
-    onCodeInput?.(code, language);
+  const handleCodeInput = (codeAttachment: CodeAttachment) => {
+    onCodeSubmit?.(codeAttachment);
     handleDialogClose();
   };
 

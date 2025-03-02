@@ -13,10 +13,10 @@ export interface CodeEditorProps {
   theme?: 'vs-dark' | 'vs-light';
   height?: string;
   readOnly?: boolean;
-  className?: string; // Add className prop
+  className?: string;
 }
 
-interface LanguageConfig {
+export interface LanguageConfig {
   label: string;
   value: string;
   tabSize: number;
@@ -53,7 +53,7 @@ export const CodeEditor = memo(({
   language,
   onLanguageChange,
   theme = 'vs-dark',
-  height = '300px',
+  height = '500px',
   readOnly = false,
   className
 }: CodeEditorProps) => {
@@ -161,21 +161,17 @@ export const CodeEditor = memo(({
   }
 
   return (
-    <div className={`relative rounded-md border my-4 bg-background shadow-sm ${className}`}>
-     
-
-      <div className="p-4">
-        <Editor
-          height={height}
-          language={language}
-          value={value}
-          theme={theme}
-          onChange={handleEditorChange}
-          onMount={handleEditorDidMount}
-          loading={<div className="animate-pulse">Loading editor...</div>}
-          options={editorOptions}
-        />
-      </div>
+    <div className={`relative rounded-md border bg-background shadow-sm h-full ${className}`}>
+      <Editor
+        height={height}
+        language={language}
+        value={value}
+        theme={theme}
+        onChange={handleEditorChange}
+        onMount={handleEditorDidMount}
+        loading={<div className="animate-pulse">Loading editor...</div>}
+        options={editorOptions}
+      />
     </div>
   );
 });

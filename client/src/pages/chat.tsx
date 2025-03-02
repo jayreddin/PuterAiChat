@@ -7,18 +7,16 @@ import { getDefaultModel } from "@/lib/models";
 import { createNewConversation, getConversation, saveConversation } from "@/lib/storage";
 import { Loader2 } from "lucide-react";
 import type { Conversation } from "@shared/schema";
-import type { UploadedImage } from "@/components/chat/utility-bar"; // Import UploadedImage interface
+import type { UploadedImage, CodeAttachment } from "@/components/chat/utility-bar";
 
 export default function ChatPage() {
-  // Start with a different model than the default to avoid the initial issue
   const [currentModel, setCurrentModel] = useState("claude-3-5-sonnet");
   const [conversation, setConversation] = useState<Conversation | null>(null);
-  const [deepThinkModelId, setDeepThinkModelId] = useState<string | null>(null); // Add deepThinkModelId state
+  const [deepThinkModelId, setDeepThinkModelId] = useState<string | null>(null);
+  const [codeAttachment, setCodeAttachment] = useState<CodeAttachment | null>(null);
   const { isInitialized, isLoading, error } = usePuter();
 
-  // Initialize conversation after Puter is loaded or after a timeout
   useEffect(() => {
-    // Create conversation once when component mounts or when Puter initializes
     if (!conversation) {
       console.log('Initializing conversation with model:', currentModel);
       const newConversation = createNewConversation(currentModel);
@@ -27,14 +25,13 @@ export default function ChatPage() {
     }
   }, [conversation]);
 
-  // Log Puter state changes for debugging
   useEffect(() => {
     console.log('Puter state in ChatPage:', { isInitialized, isLoading, error });
   }, [isInitialized, isLoading, error]);
 
   const handleModelChange = (modelId: string) => {
     setCurrentModel(modelId);
-    setDeepThinkModelId(null); // Reset deep think model on model change
+    setDeepThinkModelId(null);
     const newConversation = createNewConversation(modelId);
     setConversation(newConversation);
     saveConversation(newConversation);
@@ -46,20 +43,21 @@ export default function ChatPage() {
   };
 
   const handleNewChat = () => {
-    setDeepThinkModelId(null); // Reset deep think model on new chat
+    setDeepThinkModelId(null);
+    setCodeAttachment(null);
     const newConversation = createNewConversation(currentModel);
     setConversation(newConversation);
     saveConversation(newConversation);
   };
 
-  // Dummy handleImageUpload function
   const handleImageUploaded = (images: UploadedImage[]) => {
     console.log("Images uploaded:", images);
-    // Implement actual image handling logic here later
   };
 
+  const handleCodeAttachment = (attachment: CodeAttachment) => {
+    setCodeAttachment(attachment);
+  };
 
-  // If conversation is null, show loading state
   if (!conversation) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
 
   return (
@@ -84,17 +82,23 @@ export default function ChatPage() {
           </div>
         )}
         
-        {!isLoading && (
+        {!isLoading && conversation && (
           <ChatContainer
             conversation={conversation}
             onUpdate={handleConversationUpdate}
-            onNewChat={handleNewChat} // Pass handleNewChat to ChatContainer
+            onNewChat={handleNewChat}
+            onLoadChat={id => console.log("Load chat:", id)}
+            codeAttachment={codeAttachment}
+            onRemoveCodeAttachment={() => setCodeAttachment(null)}
           />
         )}
       </main>
 
       <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16 flex flex-col items-center justify-center gap-1">
-        <UtilityBar onImageUploaded={handleImageUploaded} /> {/* Pass handleImageUploaded to UtilityBar */}
+        <UtilityBar 
+          onImageUploaded={handleImageUploaded}
+          onCodeSubmit={handleCodeAttachment}
+        />
         <div className="text-sm text-muted-foreground">
           Created by <a href="https://github.io/jayreddin" className="hover:underline">Jamie Reddin</a> - 2025
         </div>

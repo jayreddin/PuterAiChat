@@ -1,23 +1,21 @@
-import { memo, useState, FormEvent } from "react";
+import { memo, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { CodeEditor } from "./code-editor";
-import { Maximize, Settings as SettingsIcon, Minimize } from "lucide-react"; // Import Minimize icon
-import { CodeSettingsDialog } from "./code-settings-dialog.tsx"; // Import the new component with explicit extension
+import { Maximize, Settings as SettingsIcon, Minimize } from "lucide-react";
+import { CodeSettingsDialog } from "./code-settings-dialog";
 
 export interface CodeInputDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (code: string, language: string) => void;
+  onSubmit?: (codeAttachment: { filename: string; language: string; content: string }) => void;
 }
 
 const SUPPORTED_LANGUAGES = [
@@ -41,6 +39,30 @@ const SUPPORTED_LANGUAGES = [
   { value: "shell", label: "Shell Script" },
 ];
 
+const getFileExtension = (language: string): string => {
+  const extensionMap: { [key: string]: string } = {
+    javascript: "js",
+    typescript: "ts",
+    python: "py",
+    java: "java",
+    csharp: "cs",
+    cpp: "cpp",
+    php: "php",
+    ruby: "rb",
+    go: "go",
+    rust: "rs",
+    sql: "sql",
+    html: "html",
+    css: "css",
+    json: "json",
+    xml: "xml",
+    markdown: "md",
+    yaml: "yml",
+    shell: "sh"
+  };
+  return extensionMap[language] || "txt";
+};
+
 export const CodeInputDialog = memo(({
   open,
   onOpenChange,
@@ -48,93 +70,87 @@ export const CodeInputDialog = memo(({
 }: CodeInputDialogProps) => {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false); // State for fullscreen
-  const [settingsOpen, setSettingsOpen] = useState(false); // State for settings dialog
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const resetForm = () => {
+  const resetDialog = useCallback(() => {
     setCode("");
     setLanguage("javascript");
-    setIsSubmitting(false);
-  };
+    setSettingsOpen(false);
+  }, []);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(() => {
+    if (code.trim()) {
+      const timestamp = new Date().getTime();
+      const ext = getFileExtension(language);
+      const filename = `code-${timestamp}.${ext}`;
+      
+      const codeAttachment = {
+        filename,
+        language,
+        content: code.trim()
+      };
 
-    if (!code.trim()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      onSubmit(code.trim(), language);
+      onSubmit?.(codeAttachment);
       onOpenChange(false);
-      resetForm();
-    } catch (error) {
-      console.error('Failed to submit code:', error);
-    } finally {
-      setIsSubmitting(false);
+      resetDialog();
     }
-  };
+  }, [code, language, onSubmit, onOpenChange, resetDialog]);
 
-  const toggleFullScreen = () => {
+  const toggleFullScreen = useCallback(() => {
     if (!isFullScreen) {
-      // Enter fullscreen
-      const element = document.documentElement; // Or a specific element if needed
+      const element = document.documentElement;
       if (element.requestFullscreen) {
         element.requestFullscreen();
       }
     } else {
-      // Exit fullscreen
       if (document.exitFullscreen) {
         document.exitFullscreen();
       }
     }
     setIsFullScreen(!isFullScreen);
-  };
+  }, [isFullScreen]);
 
   return (
-    <Dialog 
-      open={open} 
-      onOpenChange={(openState) => {
-        onOpenChange(openState);
-        if (!openState) resetForm();
-      }}
-    >
-      <DialogContent className={`sm:max-w-[800px] p-0 ${isFullScreen ? 'max-w-full h-screen' : ''}`}>
-        <div className="h-full flex flex-col">
-          <div className="p-6 pb-0">
-            <DialogHeader>
-              <div className="flex items-center justify-between">
-                <DialogTitle>Add Code</DialogTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setSettingsOpen(true)}
-                    title="Code Settings"
-                  >
-                    <SettingsIcon className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleFullScreen}
-                    title={isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
-                  >
-                    {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-                  </Button>
+    <>
+      <Dialog 
+        open={open} 
+        onOpenChange={(openState) => {
+          onOpenChange(openState);
+          if (!openState) {
+            resetDialog();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[800px] h-[600px] p-0">
+          <div className="flex flex-col h-full">
+            <div className="p-4 border-b">
+              <DialogHeader>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-center flex-1">Add Code</DialogTitle>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSettingsOpen(true)}
+                      title="Code Settings"
+                    >
+                      <SettingsIcon className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={toggleFullScreen}
+                      title={isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+                    >
+                      {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <DialogDescription>
-                Enter code to analyze or modify. The code will be processed with syntax highlighting
-                and proper formatting.
-              </DialogDescription>
-            </DialogHeader>
-          </div>
-          
-          <ScrollArea className="flex-1 h-full px-6"> {/* Added h-full here */}
-            <form onSubmit={handleSubmit} className="space-y-4"> {/* Removed py-4 */}
+              </DialogHeader>
+            </div>
+
+            <div className="p-4 border-b">
               <Select 
                 value={language} 
                 onValueChange={setLanguage}
@@ -150,31 +166,37 @@ export const CodeInputDialog = memo(({
                   ))}
                 </SelectContent>
               </Select>
-                <CodeEditor
-                  value={code}
-                  onChange={setCode}
-                  language={language}
-                  height="100%"
-                />
-            </form>
-          </ScrollArea>
-          
-          <div className="p-6 pt-0">
-            <DialogFooter>
-              <Button 
-                type="submit"
-                onClick={handleSubmit}
-                disabled={!code.trim() || isSubmitting}
-                className="w-full sm:w-auto"
-              >
-                {isSubmitting ? "Processing..." : "Submit Code"}
-              </Button>
-            </DialogFooter>
+            </div>
+
+            <div className="flex-1 min-h-0">
+              <CodeEditor
+                value={code}
+                onChange={setCode}
+                language={language}
+                height="100%"
+              />
+            </div>
+
+            <div className="p-4 border-t">
+              <DialogFooter>
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={!code.trim()}
+                  className="w-32"
+                >
+                  Insert
+                </Button>
+              </DialogFooter>
+            </div>
           </div>
-        </div>
-        <CodeSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <CodeSettingsDialog 
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+      />
+    </>
   );
 });
 

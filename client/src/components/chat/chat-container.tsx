@@ -1,4 +1,4 @@
-import { useEffect, useRef, forwardRef, useState } from "react";
+import { useEffect, useRef, forwardRef, useState, useCallback } from "react";
 import { Message, Conversation } from "@shared/schema";
 import { InputButtons } from "./input-buttons";
 import { usePuter } from "@/contexts/puter-context";
@@ -13,12 +13,16 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { MessageBlock, ImageDescription, PuterAPI } from "@/types/puter";
+import type { CodeAttachment } from "./utility-bar";
+import { cn } from "@/lib/utils";
 
 interface ChatContainerProps {
   conversation: Conversation;
   onUpdate: (conversation: Conversation) => void;
   onNewChat?: () => void;
   onLoadChat?: (conversationId: string) => void;
+  codeAttachment?: CodeAttachment | null;
+  onRemoveCodeAttachment?: () => void;
 }
 
 interface ChatHistoryItem {
@@ -59,14 +63,16 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
   conversation, 
   onUpdate, 
   onNewChat, 
-  onLoadChat 
+  onLoadChat,
+  codeAttachment,
+  onRemoveCodeAttachment 
 }, ref) => {
   const [isTyping, setIsTyping] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
-  const [deepThinkModelId, setDeepThinkModelId] = useState<string | null>(null); // Add deepThinkModelId state
+  const [deepThinkModelId, setDeepThinkModelId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const model = getModelById(conversation.model) || { name: "AI Assistant" };
   const { isInitialized: isPuterInitialized, isLoading } = usePuter();
@@ -100,6 +106,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
     setInputValue("");
     setUploadedImages([]);
     setIsTyping(false);
+    onRemoveCodeAttachment?.();
   };
 
   const handleNewChat = () => {
@@ -145,8 +152,12 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
     }
   };
 
+  const handleDeepThinkToggle = useCallback(() => {
+    setDeepThinkModelId(null);
+  }, []);
+
   const handleSend = async () => {
-    if (!inputValue.trim() && uploadedImages.length === 0) return;
+    if (!inputValue.trim() && uploadedImages.length === 0 && !codeAttachment) return;
     
     const puterAI = getPuterAI();
     if (!isPuterInitialized || !puterAI) {
@@ -186,13 +197,18 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
         console.error('Failed to process images:', error);
       }
     }
+
+    // Add code attachment if present
+    if (codeAttachment) {
+      message = `[Code File: ${codeAttachment.filename}]\n\`\`\`${codeAttachment.language}\n${codeAttachment.content}\n\`\`\`\n\n${message}`;
+    }
   
     // Check for deep think format and extract model
     const deepThinkMatch = message.match(/<deep-think model="([^"]+)">/);
     if (deepThinkMatch) {
       const modelId = deepThinkMatch[1];
-      setDeepThinkModelId(modelId); // Update deepThinkModelId
-      console.log('Deep think model ID set:', modelId)
+      setDeepThinkModelId(modelId);
+      console.log('Deep think model ID set:', modelId);
     }
 
     // Add user message
@@ -206,6 +222,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
     if (!updatedConvo) return;
     onUpdate(updatedConvo);
     setUploadedImages([]); // Clear images after sending
+    onRemoveCodeAttachment?.(); // Clear code attachment after sending
 
     // Show typing indicator
     setIsTyping(true);
@@ -289,6 +306,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
               onEdit={(content) => {
                 setInputValue(content);
                 setUploadedImages([]);
+                onRemoveCodeAttachment?.();
               }}
             />
           ))}
@@ -328,6 +346,19 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
           </div>
         )}
 
+        {isDeepThinkActive && (
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full mb-2 px-4 py-2 text-sm text-muted-foreground hover:bg-accent",
+              "flex items-center justify-center gap-2"
+            )}
+            onClick={handleDeepThinkToggle}
+          >
+            Using {deepThinkModelName} for Deep Thinking
+          </Button>
+        )}
+
         <div className="flex flex-col md:flex-row gap-2 mb-4 transition-all duration-300 ease-in-out">
           {/* Left buttons */}
           <div>
@@ -347,6 +378,8 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
               disabled={isTyping || isLoading || !isPuterInitialized}
               isDeepThinkActive={isDeepThinkActive}
               deepThinkModelName={deepThinkModelName}
+              codeAttachment={codeAttachment}
+              onRemoveCodeAttachment={onRemoveCodeAttachment}
             />
           </div>
 
@@ -355,8 +388,10 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
             <InputButtons
               onSend={handleSend}
               onMicInput={(text) => setInputValue(text)}
-              sendDisabled={!inputValue.trim() && uploadedImages.length === 0 || isTyping || isLoading || !isPuterInitialized}
+              sendDisabled={!inputValue.trim() && uploadedImages.length === 0 && !codeAttachment || isTyping || isLoading || !isPuterInitialized}
               placement="right"
+              isDeepThinkActive={isDeepThinkActive}
+              onDeepThinkToggle={handleDeepThinkToggle}
             />
           </div>
         </div>
