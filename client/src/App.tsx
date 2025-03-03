@@ -6,6 +6,7 @@ import { ChatInputProvider } from "@/contexts/chat-input-context";
 import { PuterProvider } from "@/contexts/puter-context";
 import ChatPage from "@/pages/chat";
 import React, { useState } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 function Router() {
   return (
