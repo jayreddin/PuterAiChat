@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import path from "path";
 import { setupVite, serveStatic, log } from "./vite";
 import { Server } from "http";
 
@@ -7,6 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -30,7 +32,7 @@ app.use((req, res, next) => {
         logLine = logLine.slice(0, 79) + "…";
       }
 
-      log(logLine);
+      console.log(logLine);
     }
   });
 
@@ -57,6 +59,23 @@ const server = new Server(app);
     serveStatic(app);
   }
 
+  // Only serve static files in production (Vercel will handle this)
+  if (process.env.NODE_ENV === "production") {
+    const distPath = path.resolve(__dirname, "../client/dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.resolve(distPath, "index.html"));
+    });
+  }
+
+  // For local development
+  if (process.env.NODE_ENV !== "production") {
+    const port = process.env.PORT || 5000;
+    app.listen(port, () => {
+      console.log(`Server listening on port ${port}`);
+    });
+  }
+
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client
   const port = 5000;
@@ -68,3 +87,6 @@ const server = new Server(app);
     log(`serving on port ${port}`);
   });
 })();
+
+// For Vercel
+export default app;

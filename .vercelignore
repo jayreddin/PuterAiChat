@@ -1,0 +1,10 @@
+node_modules
+.git
+.github
+.vscode
+Screenshots
+README.md
+DIALOG_ERROR_CHECKLIST.md
+UI_Modifications_Plan.md
+attached_assets
+.codebuddy
