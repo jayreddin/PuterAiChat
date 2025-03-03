@@ -7,7 +7,7 @@ import { ChatInput } from "./chat-input";
 import { getModelById } from "@/lib/models";
 import { ModelIndicator } from "./model-indicator";
 import { addMessage } from "@/lib/storage";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,15 @@ interface UploadedImage {
   id: string;
   url: string;
 }
+
+const extractReasoningContext = (model: string, message: string): string | null => {
+  // Extract reasoning context based on model
+  if (message.includes("Let me think about this step by step:") ||
+      message.includes("Let me analyze this systematically:")) {
+    return message;
+  }
+  return null;
+};
 
 const generateChatTitle = (messages: Message[]): string => {
   const firstUserMessage = messages.find(m => m.role === 'user');
@@ -68,6 +77,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
   onRemoveCodeAttachment 
 }, ref) => {
   const [isTyping, setIsTyping] = useState(false);
+  const [reasoningContext, setReasoningContext] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -228,36 +238,106 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
     setIsTyping(true);
 
     try {
-      const response = await puterAI.chat(message, {
-        model: conversation.model
-      });
-
-      let aiResponse: string;
-      if (response?.message?.content) {
-        if (typeof response.message.content === 'string') {
-          aiResponse = response.message.content;
-        } else if (Array.isArray(response.message.content)) {
-          aiResponse = response.message.content
-            .filter((block: MessageBlock): block is MessageBlock => block.type === 'text')
-            .map(block => block.text)
-            .join('\n');
-        } else {
-          throw new Error("Unexpected response format from AI");
-        }
-
-        // Add AI response
-        const finalConvo = addMessage(conversation.id, {
-          content: aiResponse,
-          role: "assistant",
-          timestamp: Date.now(),
+      let aiResponse: string = '';
+      
+      // Handle streaming models
+      if ('isStreaming' in model && model.isStreaming) {
+        const response = await puterAI.chat(message, {
           model: conversation.model,
+          onProgress: (progress) => {
+            if (progress) {
+              aiResponse += progress;
+              const reasoning = extractReasoningContext(conversation.model, aiResponse);
+              if (reasoning) {
+                setReasoningContext(reasoning);
+              }
+            }
+          }
+        });
+        
+        // Extract final response if available
+        if (response?.message?.content) {
+          aiResponse = typeof response.message.content === 'string'
+            ? response.message.content
+            : Array.isArray(response.message.content)
+              ? response.message.content
+                  .filter((block: MessageBlock): block is MessageBlock => block.type === 'text')
+                  .map(block => block.text)
+                  .join('\n')
+              : aiResponse;
+        }
+      }
+      // Handle image-capable models
+      else if (uploadedImages.length > 0 && (conversation.model === 'o1-mini' || conversation.model === 'gpt-4o-mini')) {
+        const messages = [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: message },
+              ...uploadedImages.map(img => ({
+                type: "image_url",
+                image_url: { url: img.url }
+              }))
+            ]
+          }
+        ];
+
+        const response = await puterAI.chat(JSON.stringify(messages), {
+          model: conversation.model
         });
 
-        if (finalConvo) {
-          onUpdate(finalConvo);
+        if (response?.message?.content) {
+          aiResponse = typeof response.message.content === 'string'
+            ? response.message.content
+            : Array.isArray(response.message.content)
+              ? response.message.content
+                  .filter((block: MessageBlock): block is MessageBlock => block.type === 'text')
+                  .map(block => block.text)
+                  .join('\n')
+              : '';
         }
-      } else {
-        throw new Error("Invalid response from AI");
+      }
+      // Handle standard models
+      else {
+        const response = await puterAI.chat(message, {
+          model: conversation.model,
+          onProgress: (progress) => {
+            if (progress && typeof progress === 'string') {
+              const reasoning = extractReasoningContext(conversation.model, progress);
+              if (reasoning) {
+                setReasoningContext(reasoning);
+              }
+            }
+          }
+        });
+
+        if (response?.message?.content) {
+          aiResponse = typeof response.message.content === 'string'
+            ? response.message.content
+            : Array.isArray(response.message.content)
+              ? response.message.content
+                  .filter((block: MessageBlock): block is MessageBlock => block.type === 'text')
+                  .map(block => block.text)
+                  .join('\n')
+              : '';
+        }
+      }
+
+      if (!aiResponse) {
+        throw new Error("No response content from AI");
+      }
+
+      // Add AI response
+      const finalConvo = addMessage(conversation.id, {
+        content: aiResponse,
+        role: "assistant",
+        timestamp: Date.now(),
+        model: conversation.model,
+      });
+
+      if (finalConvo) {
+        setReasoningContext(null);  // Clear reasoning context before showing final response
+        onUpdate(finalConvo);
       }
     } catch (error) {
       console.error("AI chat error:", error);
@@ -280,6 +360,10 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
   const isDeepThinkActive = deepThinkModelId === conversation.model;
   const deepThinkModelName = isDeepThinkActive ? (getModelById(deepThinkModelId)?.name || undefined) : undefined;
 
+  const handleExampleSelect = useCallback((example: string) => {
+    setInputValue(example);
+  }, [setInputValue]);
+
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto px-4" ref={ref}>
       <div className="flex-1 relative">
@@ -293,11 +377,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
                 <br />- Refresh the page and try again
               </p>
             </div>
-          ) : (
-            <div className="mb-4">
-              <ModelIndicator modelId={conversation.model} className="pl-2" />
-            </div>
-          )}
+          ) : null}
           
           {conversation.messages.slice().reverse().map((message) => (
             <ChatBubble
@@ -311,32 +391,47 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
             />
           ))}
 
-          {isTyping && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-sm text-muted-foreground ml-4"
-            >
-              {model?.name} is typing...
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {isTyping && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-sm text-muted-foreground ml-4"
+                >
+                  {model?.name} is thinking...
+                </motion.div>
+                {reasoningContext && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 0.7, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="ml-4 mt-2 p-4 rounded-lg bg-muted/50"
+                  >
+                    <div className="text-sm whitespace-pre-wrap text-muted-foreground">
+                      {reasoningContext}
+                    </div>
+                  </motion.div>
+                )}
+              </>
+            )}
+          </AnimatePresence>
 
           <div ref={messagesEndRef} />
         </div>
       </div>
 
-      {/* Deep Think Indicator - Moved outside chat messages box */}
+      {/* Moved ModelIndicator here */}
       {isDeepThinkActive && (
-        <Button
-          variant="ghost"
-          className={cn(
-            "w-full mb-2 px-4 py-2 text-sm text-muted-foreground hover:bg-accent",
-            "flex items-center justify-center gap-2"
-          )}
-          onClick={handleDeepThinkToggle}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="w-full mb-2 flex justify-center"
         >
-          Using {deepThinkModelName} for Deep Thinking
-        </Button>
+          <ModelIndicator modelId={deepThinkModelId} />
+        </motion.div>
       )}
 
       <div className="sticky bottom-0 pt-2 pb-4 bg-background">
@@ -398,6 +493,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
         </div>
       </div>
 
+      {/* Dialog remains the same */}
       <Dialog open={showHistory} onOpenChange={setShowHistory}>
         <DialogContent>
           <DialogHeader>

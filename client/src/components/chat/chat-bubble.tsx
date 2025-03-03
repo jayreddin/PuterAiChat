@@ -72,7 +72,7 @@ export function ChatBubble({ message, onEdit }: ChatBubbleProps) {
       </div>
 
       <div className={`
-        max-w-[85%] rounded-xl p-2 shadow-sm border
+        max-w-[85%] rounded-xl p-1.5 shadow-sm border-2
         ${isUser ?
           'bg-blue-500 text-white dark:bg-blue-600 border-black dark:border-white' :
           'bg-green-500 text-white dark:bg-green-600 border-black dark:border-white'

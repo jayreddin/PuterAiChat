@@ -1,7 +1,7 @@
 import { useRef, KeyboardEvent } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { useChatInputContext } from "@/contexts/chat-input-context";
+import { useChat } from "@/contexts/chat-input-context";
 import { CodeAttachment } from "./code-attachment";
 
 interface ChatInputProps {
@@ -27,10 +27,9 @@ export function ChatInput({
   isDeepThinkActive = false,
   deepThinkModelName,
   codeAttachment,
-  onRemoveCodeAttachment
+  onRemoveCodeAttachment,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { insertText } = useChatInputContext();
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -48,12 +47,6 @@ export function ChatInput({
       className="w-full bg-background"
     >
       <div className="relative w-full">
-        {isDeepThinkActive && deepThinkModelName && (
-          <div className="absolute top-1 left-4 text-xs text-muted-foreground">
-            Deep Think: {deepThinkModelName}
-          </div>
-        )}
-        
         {codeAttachment && (
           <div className="absolute -top-14 left-4">
             <CodeAttachment

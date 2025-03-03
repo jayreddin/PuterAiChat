@@ -111,27 +111,6 @@ export function InputButtons({
 
         {placement === "right" && (
           <>
-            {onDeepThinkToggle && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onDeepThinkToggle}
-                title={isDeepThinkActive ? "Disable Deep Think" : "Deep Think"}
-                className={cn(
-                  "flex-1 bg-background shadow-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-transform duration-150",
-                  isDeepThinkActive && "bg-primary/20 dark:bg-primary/40"
-                )}
-              >
-                <Brain 
-                  className={cn(
-                    "h-5 w-5",
-                    isDeepThinkActive 
-                      ? "text-primary" 
-                      : "text-black dark:text-white"
-                  )} 
-                />
-              </Button>
-            )}
             {onSend && (
               <Button
                 variant="ghost"

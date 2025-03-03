@@ -40,7 +40,10 @@ interface PuterFiles {
 }
 
 interface PuterAI {
-  chat(message: string, options: { model: string }): Promise<PuterAIResponse>;
+  chat(message: string, options: {
+    model: string;
+    onProgress?: (progress: string) => void;
+  }): Promise<PuterAIResponse>;
   processImage(options: {
     image: File | string;
     prompt?: string;

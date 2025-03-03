@@ -170,3 +170,65 @@ export const loadSavedModel = (): ReasoningModel => {
   const savedModelId = localStorage.getItem('selectedReasoningModel');
   return getModelById(savedModelId || 'gpt-4o-mini') || getDefaultModel();
 };
+
+export interface ReasoningExample {
+  title: string;
+  content: string;
+}
+
+export const reasoningExamples: ReasoningExample[] = [
+  {
+    title: "Basic Problem Solving",
+    content: `Let me think about this step by step:
+1. First, I'll clearly identify the key components of the problem
+2. Then, I'll list any important constraints or requirements
+3. Next, I'll break down the problem into smaller, manageable parts
+4. For each part, I'll develop a potential solution
+5. Finally, I'll combine these solutions into a cohesive approach
+Let's begin...`
+  },
+  {
+    title: "Complex Analysis",
+    content: `Let me analyze this systematically:
+1. I'll start by gathering all relevant information
+2. Next, I'll identify any patterns or relationships
+3. Then, I'll examine potential causes and effects
+4. I'll consider multiple perspectives and interpretations
+5. After that, I'll evaluate the implications
+6. Finally, I'll form a comprehensive conclusion
+Now, let's examine each aspect...`
+  },
+  {
+    title: "Decision Making Framework",
+    content: `Let me approach this decision methodically:
+1. First, I'll list all available options
+2. Then, I'll define the key criteria for evaluation
+3. Next, I'll assess each option against these criteria
+4. I'll identify potential risks and benefits
+5. After that, I'll weigh the trade-offs
+6. Finally, I'll recommend the best course of action
+Let's evaluate each option...`
+  },
+  {
+    title: "Strategy Development",
+    content: `Let me develop a strategic approach:
+1. First, I'll analyze the current situation
+2. Then, I'll identify the desired outcome
+3. Next, I'll brainstorm potential strategies
+4. I'll evaluate the feasibility of each strategy
+5. Following that, I'll outline required resources
+6. Finally, I'll create an implementation plan
+Let's begin the analysis...`
+  }
+];
+
+// Simple examples array for backward compatibility
+const examples = [
+  "What are the steps to bake a cake?",
+  "Explain the theory of relativity.",
+  "Write a short story about a cat.",
+  "Translate 'hello world' to Spanish.",
+  "What is the capital of France?"
+];
+
+export { examples };

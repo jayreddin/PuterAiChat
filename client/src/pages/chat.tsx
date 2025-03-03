@@ -8,6 +8,7 @@ import { createNewConversation, getConversation, saveConversation } from "@/lib/
 import { Loader2 } from "lucide-react";
 import type { Conversation } from "@shared/schema";
 import type { UploadedImage, CodeAttachment } from "@/components/chat/utility-bar";
+import { useChat } from "@/contexts/chat-input-context";
 
 export default function ChatPage() {
   const [currentModel, setCurrentModel] = useState("claude-3-5-sonnet");
@@ -63,12 +64,14 @@ export default function ChatPage() {
   return (
     <div className="h-screen flex flex-col">
       <header className="fixed top-0 left-0 right-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
-        <div className="h-12 flex items-center justify-center px-4">
-          <ModelSelect
-            value={currentModel}
-            onValueChange={handleModelChange}
-            isDeepThinkActive={deepThinkModelId === currentModel}
-          />
+        <div className="h-12 flex items-center justify-between px-4 max-w-screen-xl mx-auto">
+          <div className="flex-1 flex items-center justify-center">
+            <ModelSelect
+              value={currentModel}
+              onValueChange={handleModelChange}
+              isDeepThinkActive={deepThinkModelId === currentModel}
+            />
+          </div>
         </div>
       </header>
 
