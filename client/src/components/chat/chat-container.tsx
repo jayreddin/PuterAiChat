@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ImageUploadDialog } from "./image-upload-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { MessageBlock, ImageDescription, PuterAPI } from "@/types/puter";
 import type { CodeAttachment } from "./utility-bar";
@@ -37,7 +38,6 @@ interface UploadedImage {
 }
 
 const extractReasoningContext = (model: string, message: string): string | null => {
-  // Extract reasoning context based on model
   if (message.includes("Let me think about this step by step:") ||
       message.includes("Let me analyze this systematically:")) {
     return message;
@@ -82,6 +82,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+  const [showImageUpload, setShowImageUpload] = useState(false);
   const [deepThinkModelId, setDeepThinkModelId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const model = getModelById(conversation.model) || { name: "AI Assistant" };
@@ -422,6 +423,26 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
         </div>
       </div>
 
+      {uploadedImages.length > 0 && (
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-4 px-2">
+          {uploadedImages.map((image) => (
+            <div key={image.id} className="relative group">
+              <img
+                src={image.url}
+                alt="Uploaded"
+                className="w-full h-16 sm:w-16 sm:h-16 object-cover rounded-lg border-2 border-black dark:border-white"
+              />
+              <button
+                onClick={() => removeImage(image.id)}
+                className="absolute -top-2 -right-2 p-1.5 sm:p-1 rounded-full bg-red-500 text-white touch-manipulation"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {isDeepThinkActive && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -434,31 +455,12 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
       )}
 
       <div className="sticky bottom-0 pt-2 pb-4 bg-background">
-        {uploadedImages.length > 0 && (
-          <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-4 px-2">
-            {uploadedImages.map((image) => (
-              <div key={image.id} className="relative group">
-                <img
-                  src={image.url}
-                  alt="Uploaded"
-                  className="w-full h-16 sm:w-16 sm:h-16 object-cover rounded-lg border-2 border-black dark:border-white"
-                />
-                <button
-                  onClick={() => removeImage(image.id)}
-                  className="absolute -top-2 -right-2 p-1.5 sm:p-1 rounded-full bg-red-500 text-white touch-manipulation"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
         <div className="flex flex-col gap-2 px-2 sm:px-0 mb-4">
           <div className="flex flex-row gap-2 justify-between sm:hidden">
             <InputButtons
               onNewChat={handleNewChat}
               onHistory={() => setShowHistory(true)}
+              onImageUpload={() => setShowImageUpload(true)}
               placement="left"
             />
             <InputButtons
@@ -476,6 +478,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
               <InputButtons
                 onNewChat={handleNewChat}
                 onHistory={() => setShowHistory(true)}
+                onImageUpload={() => setShowImageUpload(true)}
                 placement="left"
               />
             </div>
@@ -528,6 +531,12 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
           </div>
         </DialogContent>
       </Dialog>
+
+      <ImageUploadDialog
+        open={showImageUpload}
+        onClose={() => setShowImageUpload(false)}
+        onUpload={handleImageUpload}
+      />
     </div>
   );
 });

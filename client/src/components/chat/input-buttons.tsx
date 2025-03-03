@@ -1,151 +1,127 @@
-import { Plus, Clock, Send, Mic, Brain } from "lucide-react";
+import { Mic, Send, Square, Plus, History, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useState, useCallback } from "react";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
-import { useEffect, useCallback } from "react";
-import { toast } from "@/hooks/use-toast";
+import type { ButtonProps } from "@/components/ui/button";
 
-interface InputButtonsProps {
-  onNewChat?: () => void;
-  onHistory?: () => void;
+export interface InputButtonsProps {
   onSend?: () => void;
   onMicInput?: (text: string) => void;
-  onDeepThinkToggle?: () => void;
+  onNewChat?: () => void;
+  onHistory?: () => void;
+  onImageUpload?: () => void;
   sendDisabled?: boolean;
-  placement: "left" | "right";
+  placement?: "left" | "right";
   isDeepThinkActive?: boolean;
+  onDeepThinkToggle?: () => void;
 }
 
 export function InputButtons({
-  onNewChat,
-  onHistory,
   onSend,
   onMicInput,
-  onDeepThinkToggle,
+  onNewChat,
+  onHistory,
+  onImageUpload,
   sendDisabled,
-  placement,
-  isDeepThinkActive = false
+  placement = "right",
+  isDeepThinkActive,
+  onDeepThinkToggle
 }: InputButtonsProps) {
-  const handleResult = useCallback((transcript: string) => {
-    onMicInput?.(transcript);
-  }, [onMicInput]);
-
-  const handleEnd = useCallback(() => {
-    toast({
-      description: "Voice input completed",
-      duration: 2000
-    });
-  }, []);
-
+  const [isRecording, setIsRecording] = useState(false);
   const {
-    isListening,
-    isSupported,
-    start,
-    stop,
-    error
+    startRecording,
+    stopRecording,
+    isSupported: isSpeechSupported
   } = useSpeechRecognition({
-    onResult: handleResult,
-    onEnd: handleEnd
+    onResult: (text) => {
+      setIsRecording(false);
+      onMicInput?.(text);
+    },
+    onError: (error) => {
+      console.error('Speech recognition error:', error);
+      setIsRecording(false);
+    }
   });
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Speech Recognition Error",
-        description: error,
-        variant: "destructive"
-      });
-    }
-  }, [error]);
-
-  const handleMicClick = async () => {
-    if (!isSupported) {
-      toast({
-        title: "Not Supported",
-        description: "Speech recognition is not supported in your browser.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (isListening) {
-      stop();
+  const handleMicClick = useCallback(() => {
+    if (isRecording) {
+      stopRecording();
+      setIsRecording(false);
     } else {
-      try {
-        await start();
-      } catch (err) {
-        console.error('Failed to start speech recognition:', err);
-      }
+      startRecording();
+      setIsRecording(true);
     }
+  }, [isRecording, startRecording, stopRecording]);
+
+  const baseButtonProps: ButtonProps = {
+    size: "icon",
+    variant: "ghost",
+    className: "touch-manipulation"
   };
 
-  return (
-    <div className="flex md:h-[108px] gap-2 transition-all duration-300 ease-in-out">
-      <div className="flex md:flex-col gap-1 transition-all duration-300 ease-in-out">
-        {placement === "left" && (
-          <>
-            {onNewChat && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onNewChat}
-                title="New Chat"
-                className="flex-1 bg-background shadow-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-transform duration-150"
-              >
-                <Plus className="h-5 w-5 text-black dark:text-white" />
-              </Button>
-            )}
-            {onHistory && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onHistory}
-                title="Chat History"
-                className="flex-1 bg-background shadow-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-transform duration-150"
-              >
-                <Clock className="h-5 w-5 text-black dark:text-white" />
-              </Button>
-            )}
-          </>
-        )}
+  const renderLeftButtons = () => (
+    <>
+      <Button
+        {...baseButtonProps}
+        onClick={onNewChat}
+        className={cn(baseButtonProps.className, "hover:bg-accent")}
+      >
+        <Plus className="h-5 w-5" />
+      </Button>
+      <Button
+        {...baseButtonProps}
+        onClick={onHistory}
+        className={cn(baseButtonProps.className, "hover:bg-accent")}
+      >
+        <History className="h-5 w-5" />
+      </Button>
+      <Button
+        {...baseButtonProps}
+        onClick={onImageUpload}
+        className={cn(baseButtonProps.className, "hover:bg-accent")}
+      >
+        <Image className="h-5 w-5" />
+      </Button>
+    </>
+  );
 
-        {placement === "right" && (
-          <>
-            {onSend && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={sendDisabled ? undefined : onSend}
-                disabled={sendDisabled}
-                title="Send"
-                className={cn(
-                  "flex-1 bg-background shadow-sm hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-transform duration-150",
-                  "disabled:opacity-100"
-                )}
-              >
-                <Send className="h-5 w-5 text-black dark:text-white" strokeWidth={2.5} />
-              </Button>
-            )}
-            {onMicInput && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleMicClick}
-                title="Voice Input"
-                className={cn(
-                  "flex-1 bg-background shadow-sm dark:hover:bg-gray-800",
-                  isListening && "animate-pulse bg-red-500/20 dark:bg-red-500/40"
-                )}
-              >
-                <Mic className={cn(
-                  "h-5 w-5 text-black dark:text-white",
-                  isListening && "text-red-500 dark:text-red-400"
-                )} />
-              </Button>
-            )}
-          </>
+  const renderRightButtons = () => (
+    <>
+      {isSpeechSupported && (
+        <Button
+          {...baseButtonProps}
+          onClick={handleMicClick}
+          className={cn(
+            baseButtonProps.className,
+            "hover:bg-accent",
+            isRecording && "bg-red-500 hover:bg-red-600 text-white"
+          )}
+        >
+          {isRecording ? <Square className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+        </Button>
+      )}
+      <Button
+        {...baseButtonProps}
+        onClick={onSend}
+        disabled={sendDisabled}
+        className={cn(
+          baseButtonProps.className,
+          "hover:bg-accent",
+          isDeepThinkActive && "bg-yellow-500/10 hover:bg-yellow-500/20"
         )}
-      </div>
+      >
+        <Send className="h-5 w-5" />
+      </Button>
+    </>
+  );
+
+  return (
+    <div className={cn(
+      "flex items-center gap-1",
+      placement === "right" ? "justify-end" : "justify-start"
+    )}>
+      {placement === "left" ? renderLeftButtons() : renderRightButtons()}
     </div>
   );
 }
