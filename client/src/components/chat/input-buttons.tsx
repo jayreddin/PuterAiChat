@@ -1,4 +1,4 @@
-import { Mic, Send, Square, Plus, History } from "lucide-react";
+import { Mic, Send, Square, Plus, History, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState, useCallback } from "react";
@@ -10,10 +10,12 @@ export interface InputButtonsProps {
   onMicInput?: (text: string) => void;
   onNewChat?: () => void;
   onHistory?: () => void;
+  onImageUpload?: () => void;
   sendDisabled?: boolean;
   placement?: "left" | "right";
   isDeepThinkActive?: boolean;
   onDeepThinkToggle?: () => void;
+  isPuterInitialized?: boolean;
 }
 
 export function InputButtons({
@@ -21,10 +23,12 @@ export function InputButtons({
   onMicInput,
   onNewChat,
   onHistory,
+  onImageUpload,
   sendDisabled,
   placement = "right",
   isDeepThinkActive,
-  onDeepThinkToggle
+  onDeepThinkToggle,
+  isPuterInitialized
 }: InputButtonsProps) {
   const [isRecording, setIsRecording] = useState(false);
   const {
@@ -79,6 +83,15 @@ export function InputButtons({
 
   const renderRightButtons = () => (
     <>
+      {isPuterInitialized && (
+        <Button
+          {...baseButtonProps}
+          onClick={onImageUpload}
+          className={cn(baseButtonProps.className, "hover:bg-accent")}
+        >
+          <ImagePlus className="h-5 w-5" />
+        </Button>
+      )}
       {isSpeechSupported && (
         <Button
           {...baseButtonProps}

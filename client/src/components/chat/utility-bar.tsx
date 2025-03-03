@@ -1,17 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { ImageUp, Code, Link } from "lucide-react";
+import { Code, Link } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePuter } from "../../contexts/puter-context";
 
 interface UtilityBarProps {
-  onImageClick?: () => void;
   onCodeClick?: () => void;
   onWebAddressClick?: () => void;
   className?: string;
 }
 
 export function UtilityBar({
-  onImageClick,
   onCodeClick,
   onWebAddressClick,
   className

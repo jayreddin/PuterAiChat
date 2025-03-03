@@ -5,6 +5,8 @@ import { Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ImagePreviewModal } from "./image-preview-modal";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatBubbleProps {
   message: Message;
@@ -83,11 +85,48 @@ export const ChatBubble = memo(({ message, onEdit }: ChatBubbleProps) => {
             isMobile ? "text-sm" : "text-base"
           )}
         >
-          {text.split("\n").map((line, i) => (
-            <p key={i} className={cn(line.trim() === "" && "h-4")}>
-              {line}
-            </p>
-          ))}
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              p: ({ children }) => <p className="my-1">{children}</p>,
+              h1: ({ children }) => <h1 className="text-2xl font-bold my-3">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-xl font-bold my-2">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-lg font-bold my-2">{children}</h3>,
+              ul: ({ children }) => <ul className="list-disc ml-4 my-2">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal ml-4 my-2">{children}</ol>,
+              li: ({ children }) => <li className="my-1">{children}</li>,
+              code: ({ node, inline, className, children, ...props }) => (
+                inline ?
+                <code className="bg-muted px-1.5 py-0.5 rounded text-sm" {...props}>{children}</code> :
+                <div className="my-2 rounded-lg bg-muted p-2 text-sm font-mono">
+                  <code className="text-sm" {...props}>{children}</code>
+                </div>
+              ),
+              blockquote: ({ children }) => (
+                <blockquote className="border-l-4 border-primary pl-4 my-2 italic">{children}</blockquote>
+              ),
+              a: ({ children, href }) => (
+                <a href={href} target="_blank" rel="noopener noreferrer"
+                   className="text-primary hover:underline">{children}</a>
+              ),
+              pre: ({ children }) => <pre className="overflow-auto">{children}</pre>,
+              em: ({ children }) => <em className="italic">{children}</em>,
+              strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+              hr: () => <hr className="my-4 border-muted" />,
+              table: ({ children }) => (
+                <div className="my-4 overflow-x-auto">
+                  <table className="min-w-full border-collapse">{children}</table>
+                </div>
+              ),
+              thead: ({ children }) => <thead className="bg-muted">{children}</thead>,
+              tbody: ({ children }) => <tbody>{children}</tbody>,
+              tr: ({ children }) => <tr className="border-b border-muted">{children}</tr>,
+              th: ({ children }) => <th className="p-2 text-left font-semibold">{children}</th>,
+              td: ({ children }) => <td className="p-2">{children}</td>,
+            }}
+          >
+            {text}
+          </ReactMarkdown>
         </div>
 
         {onEdit && isUser && (isHovered || isMobile) && (

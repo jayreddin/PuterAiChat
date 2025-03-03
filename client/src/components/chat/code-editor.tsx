@@ -1,11 +1,15 @@
-import { useRef, useEffect, useState, useMemo, memo } from 'react';
-import Editor, { loader, EditorProps, OnMount } from "@monaco-editor/react";
-import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { useRef, useEffect, useState, useMemo, memo, Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Copy } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// Lazy load Monaco editor
+const Editor = lazy(() => import("@monaco-editor/react").then(mod => ({ default: mod.default })));
+const { loader } = await import("@monaco-editor/react");
+import type { OnMount, EditorProps } from "@monaco-editor/react";
+import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 export interface CodeEditorProps {
   value: string;
@@ -45,12 +49,69 @@ const SUPPORTED_LANGUAGES: LanguageConfig[] = [
   { label: 'Swift', value: 'swift', tabSize: 4 },
 ];
 
-// Configure Monaco editor
+// Configure Monaco editor with performance optimizations
 loader.config({
   paths: {
     vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.33.0/min/vs',
   },
+  'vs/nls': {
+    availableLanguages: {
+      '*': ''
+    }
+  },
+  'vs/editor/editor.main': {
+    'vs/base/browser/ui/actionbar/actionbar': false,
+    'vs/base/browser/ui/tree/treeDefaults': false,
+    'vs/editor/contrib/anchorSelect/browser/anchorSelect': false,
+    'vs/editor/contrib/bracketMatching/browser/bracketMatching': false,
+    'vs/editor/contrib/caretOperations/browser/caretOperations': false,
+    'vs/editor/contrib/clipboard/browser/clipboard': false,
+    'vs/editor/contrib/codeAction/browser/codeActionContributions': false,
+    'vs/editor/contrib/codelens/browser/codelensController': false,
+    'vs/editor/contrib/colorPicker/browser/colorContributions': false,
+    'vs/editor/contrib/contextmenu/browser/contextmenu': false,
+    'vs/editor/contrib/cursorUndo/browser/cursorUndo': false,
+    'vs/editor/contrib/dnd/browser/dnd': false,
+    'vs/editor/contrib/find/browser/findController': false,
+    'vs/editor/contrib/folding/browser/folding': false,
+    'vs/editor/contrib/fontZoom/browser/fontZoom': false,
+    'vs/editor/contrib/format/browser/formatActions': false,
+    'vs/editor/contrib/gotoError/browser/gotoError': false,
+    'vs/editor/contrib/gotoSymbol/browser/link/goToDefinitionAtPosition': false,
+    'vs/editor/contrib/hover/browser/hover': false,
+    'vs/editor/contrib/indentation/browser/indentation': false,
+    'vs/editor/contrib/inlineHints/browser/inlineHints': false,
+    'vs/editor/contrib/inPlaceReplace/browser/inPlaceReplace': false,
+    'vs/editor/contrib/linesOperations/browser/linesOperations': false,
+    'vs/editor/contrib/linkedEditing/browser/linkedEditing': false,
+    'vs/editor/contrib/multicursor/browser/multicursor': false,
+    'vs/editor/contrib/parameterHints/browser/parameterHints': false,
+    'vs/editor/contrib/rename/browser/rename': false,
+    'vs/editor/contrib/smartSelect/browser/smartSelect': false,
+    'vs/editor/contrib/snippet/browser/snippetController2': false,
+    'vs/editor/contrib/suggest/browser/suggestController': false,
+    'vs/editor/contrib/tokenization/browser/tokenization': false,
+    'vs/editor/contrib/toggleTabFocusMode/browser/toggleTabFocusMode': false,
+    'vs/editor/contrib/unusualLineTerminators/browser/unusualLineTerminators': false,
+    'vs/editor/contrib/wordHighlighter/browser/wordHighlighter': false,
+    'vs/editor/contrib/wordOperations/browser/wordOperations': false,
+    'vs/editor/contrib/wordPartOperations/browser/wordPartOperations': false
+  }
 });
+
+// Add disposal effect
+useEffect(() => {
+  return () => {
+    // Cleanup Monaco editor instance on unmount
+    if (editorRef.current) {
+      editorRef.current.dispose();
+    }
+    // Clear Monaco models from memory
+    if (monacoRef.current) {
+      monacoRef.current.editor.getModels().forEach(model => model.dispose());
+    }
+  };
+}, []);
 
 export const CodeEditor = memo(({
   value,
@@ -58,8 +119,8 @@ export const CodeEditor = memo(({
   language,
   onLanguageChange,
   theme = 'vs-dark',
-  height = '500px',
-  minHeight,
+  height = '100%',
+  minHeight = '100%',
   maxHeight,
   readOnly = false,
   className,
@@ -76,7 +137,7 @@ export const CodeEditor = memo(({
     SUPPORTED_LANGUAGES.find(lang => lang.value === language) ?? SUPPORTED_LANGUAGES[0]
   , [language]);
 
-  // Memoize editor options
+  // Memoize editor options with performance optimizations
   const editorOptions = useMemo((): Monaco.editor.IStandaloneEditorConstructionOptions => ({
     minimap: { enabled: false },
     scrollBeyondLastLine: false,
@@ -86,22 +147,26 @@ export const CodeEditor = memo(({
     wordWrap: 'on',
     readOnly,
     lineNumbers: isMobile ? 'off' : 'on',
-    renderLineHighlight: 'all',
-    quickSuggestions: !isMobile && !readOnly,
+    renderLineHighlight: 'line',
+    quickSuggestions: false,
     contextmenu: !isMobile,
     tabSize: langConfig.tabSize,
-    formatOnPaste: langConfig.formatOnPaste && !isMobile,
-    formatOnType: langConfig.formatOnType && !isMobile,
-    suggestOnTriggerCharacters: !readOnly && !isMobile,
-    acceptSuggestionOnCommitCharacter: !readOnly && !isMobile,
-    suggestSelection: 'first',
-    folding: !isMobile,
+    formatOnPaste: false,
+    formatOnType: false,
+    suggestOnTriggerCharacters: false,
+    acceptSuggestionOnCommitCharacter: false,
+    hover: { enabled: false },
+    folding: false,
+    glyphMargin: false,
+    rulers: [],
+    overviewRulerLanes: 0,
     scrollbar: {
       vertical: 'visible',
       horizontal: 'visible',
       useShadows: false,
-      verticalScrollbarSize: isMobile ? 4 : 10,
-      horizontalScrollbarSize: isMobile ? 4 : 10,
+      verticalScrollbarSize: isMobile ? 4 : 8,
+      horizontalScrollbarSize: isMobile ? 4 : 8,
+      alwaysConsumeMouseWheel: false
     },
     padding: {
       top: isMobile ? 8 : 12,
@@ -110,6 +175,14 @@ export const CodeEditor = memo(({
     overviewRulerBorder: false,
     hideCursorInOverviewRuler: true,
     renderFinalNewline: 'off',
+    occurrencesHighlight: false,
+    selectionHighlight: false,
+    roundedSelection: true,
+    links: false,
+    colorDecorators: false,
+    renderWhitespace: 'none',
+    renderControlCharacters: false,
+    renderIndentGuides: false,
     ...customOptions,
   }), [langConfig, readOnly, isMobile, customOptions]);
 
@@ -201,25 +274,26 @@ export const CodeEditor = memo(({
       </Button>
 
       {/* Editor */}
-      <Editor
-        height={height}
-        language={language}
-        value={value}
-        theme={theme}
-        onChange={handleEditorChange}
-        onMount={handleEditorDidMount}
-        loading={
-          <div className={cn(
-            "flex items-center justify-center",
-            "h-full min-h-[100px]",
-            "text-sm text-muted-foreground",
-            "animate-pulse"
-          )}>
-            Loading editor...
-          </div>
-        }
-        options={editorOptions}
-      />
+      <Suspense fallback={
+        <div className={cn(
+          "flex items-center justify-center",
+          "h-full min-h-[100px]",
+          "text-sm text-muted-foreground",
+          "animate-pulse"
+        )}>
+          Loading editor...
+        </div>
+      }>
+        <Editor
+          height={height}
+          language={language}
+          value={value}
+          theme={theme}
+          onChange={handleEditorChange}
+          onMount={handleEditorDidMount}
+          options={editorOptions}
+        />
+      </Suspense>
     </div>
   );
 });

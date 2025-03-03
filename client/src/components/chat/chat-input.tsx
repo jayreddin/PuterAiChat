@@ -70,9 +70,37 @@ export function ChatInput({
         )}>
           <MarkdownEditor
             value={value}
-            style={{ width: '100%', minHeight: '48px', height: 'auto', resize: 'none', border: '2px solid black', borderRadius: '0.75rem' }}
-            onChange={(val) => onChange(val.text)} // Extract text from val
+            style={{
+              width: '100%',
+              minHeight: '48px',
+              height: 'auto',
+              resize: 'none',
+              borderRadius: '0.75rem',
+              border: '1px solid var(--border)',
+            }}
+            config={{
+              view: {
+                menu: false,
+                md: true,
+                html: false
+              },
+              canView: {
+                menu: false,
+                md: true,
+                html: false,
+                fullScreen: false,
+                hideMenu: true
+              },
+              markdownClass: 'prose dark:prose-invert max-w-none',
+              tableShape: {
+                maxRow: 5,
+                maxCol: 6
+              }
+            }}
+            placeholder="Type a message or use Markdown..."
+            onChange={(val) => onChange(val.text)}
             renderHTML={(text) => Promise.resolve(text)}
+            onKeyDown={handleKeyDown}
           />
         </div>
       </div>

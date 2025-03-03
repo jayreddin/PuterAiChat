@@ -122,9 +122,9 @@ export const CodeInputDialog = memo(({
           }
         }}
       >
-        <DialogContent className="sm:max-w-[800px] h-[600px] p-0">
+        <DialogContent className="sm:max-w-[800px] h-[80vh] max-h-[800px] p-0">
           <div className="flex flex-col h-full">
-            <div className="p-4 border-b">
+            <div className="shrink-0 p-4 border-b">
               <DialogHeader>
                 <div className="flex items-center justify-between">
                   <DialogTitle className="text-center flex-1">Add Code</DialogTitle>
@@ -150,12 +150,12 @@ export const CodeInputDialog = memo(({
               </DialogHeader>
             </div>
 
-            <div className="p-4 border-b">
-              <Select 
-                value={language} 
+            <div className="shrink-0 p-4 border-b">
+              <Select
+                value={language}
                 onValueChange={setLanguage}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="Select Language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -168,13 +168,17 @@ export const CodeInputDialog = memo(({
               </Select>
             </div>
 
-            <div className="flex-1 min-h-0">
-              <CodeEditor
-                value={code}
-                onChange={setCode}
-                language={language}
-                height="100%"
-              />
+            <div className="flex-1 min-h-0 p-4">
+              <div className="h-full rounded-lg border bg-background overflow-hidden">
+                <CodeEditor
+                  value={code}
+                  onChange={setCode}
+                  language={language}
+                  height="100%"
+                  minHeight="100%"
+                  className="rounded-lg"
+                />
+              </div>
             </div>
 
             <div className="p-4 border-t">
