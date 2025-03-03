@@ -20,16 +20,7 @@ export function UtilityBar({
 
   return (
     <div className={cn("flex items-center gap-1", className)}>
-      {isPuterInitialized && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onImageClick}
-          className="hover:bg-accent"
-        >
-          <ImageUp className="h-5 w-5" />
-        </Button>
-      )}
+      
       <Button
         variant="ghost"
         size="icon"
