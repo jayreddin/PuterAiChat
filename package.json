@@ -8,6 +8,7 @@
     "dev:client": "vite",
     "dev:server": "ts-node-dev --respawn --transpile-only server/index.ts",
     "build": "vite build",
+    "vercel-build": "vite build",
     "start": "node dist/server/index.js"
   },
   "dependencies": {
