@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { usePuter } from "@/contexts/puter-context";
+import { usePuter } from "../../contexts/puter-context";
 import { Upload, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ export function ImageUploadDialog({
 }: ImageUploadDialogProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [previewImages, setPreviewImages] = useState<Array<{ file: File; preview: string }>>([]);
-  const { isInitialized: isPuterInitialized } = usePuter();
+  const { isInitialized: isPuterInitialized, puter } = usePuter();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -51,8 +51,22 @@ export function ImageUploadDialog({
     });
   };
 
+  const ensureTempDirectory = async () => {
+    if (!puter?.fs) return;
+
+    try {
+      const tempExists = await puter.fs.exists('/temp');
+      if (!tempExists) {
+        await puter.fs.mkdir('/temp');
+      }
+    } catch (error) {
+      console.error('Failed to create temp directory:', error);
+      throw new Error('Failed to create temporary storage');
+    }
+  };
+
   const handleUpload = async () => {
-    if (!isPuterInitialized || !window.puter?.fs) {
+    if (!isPuterInitialized || !puter?.fs) {
       toast({
         description: "Upload service not available",
         variant: "destructive"
@@ -71,16 +85,16 @@ export function ImageUploadDialog({
     setIsUploading(true);
 
     try {
+      await ensureTempDirectory();
+
       const uploadedImages = await Promise.all(
         previewImages.map(async ({ file }) => {
+          const timestamp = Date.now();
+          const filename = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          
           try {
-            const uploadedFile = await window.puter.fs.write(
-              `/temp/${Date.now()}-${file.name}`,
-              file
-            );
-            
-            // Get public URL
-            const url = await window.puter.fs.getPublicURL(uploadedFile.path);
+            const uploadedFile = await puter.fs.write(`/temp/${filename}`, file);
+            const url = await puter.fs.getPublicURL(uploadedFile.path);
             
             return {
               id: uploadedFile.id,
@@ -95,6 +109,10 @@ export function ImageUploadDialog({
 
       onUpload(uploadedImages);
       handleClose();
+      
+      toast({
+        description: `Successfully uploaded ${uploadedImages.length} image${uploadedImages.length > 1 ? 's' : ''}`,
+      });
     } catch (error) {
       console.error('Upload failed:', error);
       toast({
@@ -174,7 +192,10 @@ export function ImageUploadDialog({
             <Button variant="outline" onClick={handleClose} disabled={isUploading}>
               Cancel
             </Button>
-            <Button onClick={handleUpload} disabled={previewImages.length === 0 || isUploading}>
+            <Button 
+              onClick={handleUpload} 
+              disabled={previewImages.length === 0 || isUploading}
+            >
               {isUploading ? "Uploading..." : "Upload"}
             </Button>
           </div>

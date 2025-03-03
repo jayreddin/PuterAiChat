@@ -1,40 +1,37 @@
-interface FileSystemAPI {
-  write: (path: string, content: any) => Promise<{ id: string; path: string }>;
-  read: (path: string) => Promise<any>;
-  getPublicURL: (path: string) => Promise<string>;
+export interface FSEntry {
+  id: string;
+  name: string;
+  path: string;
+  size: number;
+  type: 'file' | 'directory';
+  created: string;
+  modified: string;
 }
 
-interface ImageDescription {
-  description: string;
+export interface FSOperation {
+  write(path: string, content: string | Blob | File): Promise<FSEntry>;
+  read(path: string): Promise<string | ArrayBuffer>;
+  mkdir(path: string): Promise<FSEntry>;
+  rm(path: string): Promise<void>;
+  ls(path: string): Promise<FSEntry[]>;
+  exists(path: string): Promise<boolean>;
+  rename(oldPath: string, newPath: string): Promise<FSEntry>;
+  copy(sourcePath: string, destPath: string): Promise<FSEntry>;
+  move(sourcePath: string, destPath: string): Promise<FSEntry>;
+  getPublicURL(path: string): Promise<string>;
 }
 
-interface MessageBlock {
-  type: string;
-  text?: string;
-  image_url?: { url: string };
-}
-
-interface PuterAPIResponse {
-  message?: {
-    content: string | MessageBlock[];
-  };
-}
-
-interface PuterAPI {
-  fs: FileSystemAPI;
-  ai: {
-    chat: (message: string, options?: {
-      model?: string;
-      onProgress?: (progress: string) => void;
-    }) => Promise<PuterAPIResponse>;
-    describeImage: (url: string) => Promise<ImageDescription>;
+export interface PuterAPI {
+  fs: FSOperation;
+  ui?: {
+    alert(message: string): Promise<void>;
+    confirm(message: string): Promise<boolean>;
+    prompt(message: string, defaultValue?: string): Promise<string | null>;
   };
 }
 
 declare global {
   interface Window {
-    puter?: PuterAPI;
+    puter: PuterAPI;
   }
 }
-
-export type { PuterAPI, FileSystemAPI, MessageBlock, ImageDescription };
