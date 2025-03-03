@@ -365,13 +365,13 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
   }, [setInputValue]);
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto px-4" ref={ref}>
+    <div className="flex flex-col h-full max-w-4xl mx-auto px-2 sm:px-4" ref={ref}>
       <div className="flex-1 relative">
-        <div className="chat-messages absolute inset-0 overflow-y-auto p-6 mb-4 border-2 border-black rounded-xl [&::-webkit-scrollbar]:hidden dark:border-white">
+        <div className="chat-messages absolute inset-0 overflow-y-auto p-3 sm:p-6 mb-4 border-2 border-black rounded-xl [&::-webkit-scrollbar]:hidden dark:border-white">
           {!isPuterInitialized && !isLoading ? (
-            <div className="p-4 mb-4 bg-yellow-100 text-yellow-800 rounded-md">
-              <h3 className="font-bold">Puter AI Not Connected</h3>
-              <p>
+            <div className="p-3 sm:p-4 mb-4 bg-yellow-100 text-yellow-800 rounded-md">
+              <h3 className="font-bold text-sm sm:text-base">Puter AI Not Connected</h3>
+              <p className="text-sm sm:text-base">
                 The AI service is not properly connected. Try these steps:
                 <br />- Select a different AI model from the dropdown above
                 <br />- Refresh the page and try again
@@ -398,7 +398,7 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-sm text-muted-foreground ml-4"
+                  className="text-xs sm:text-sm text-muted-foreground ml-2 sm:ml-4"
                 >
                   {model?.name} is thinking...
                 </motion.div>
@@ -407,9 +407,9 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 0.7, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="ml-4 mt-2 p-4 rounded-lg bg-muted/50"
+                    className="ml-2 sm:ml-4 mt-2 p-3 sm:p-4 rounded-lg bg-muted/50"
                   >
-                    <div className="text-sm whitespace-pre-wrap text-muted-foreground">
+                    <div className="text-xs sm:text-sm whitespace-pre-wrap text-muted-foreground">
                       {reasoningContext}
                     </div>
                   </motion.div>
@@ -422,7 +422,6 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
         </div>
       </div>
 
-      {/* Moved ModelIndicator here */}
       {isDeepThinkActive && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -436,17 +435,17 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
 
       <div className="sticky bottom-0 pt-2 pb-4 bg-background">
         {uploadedImages.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 mb-4 px-2">
             {uploadedImages.map((image) => (
               <div key={image.id} className="relative group">
                 <img
                   src={image.url}
                   alt="Uploaded"
-                  className="w-16 h-16 object-cover rounded-lg border-2 border-black dark:border-white"
+                  className="w-full h-16 sm:w-16 sm:h-16 object-cover rounded-lg border-2 border-black dark:border-white"
                 />
                 <button
                   onClick={() => removeImage(image.id)}
-                  className="absolute -top-2 -right-2 p-1 rounded-full bg-red-500 text-white"
+                  className="absolute -top-2 -right-2 p-1.5 sm:p-1 rounded-full bg-red-500 text-white touch-manipulation"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -455,32 +454,13 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row gap-2 mb-4 transition-all duration-300 ease-in-out">
-          {/* Left buttons */}
-          <div>
+        <div className="flex flex-col gap-2 px-2 sm:px-0 mb-4">
+          <div className="flex flex-row gap-2 justify-between sm:hidden">
             <InputButtons
               onNewChat={handleNewChat}
               onHistory={() => setShowHistory(true)}
               placement="left"
             />
-          </div>
-
-          {/* Main input */}
-          <div className="flex-1">
-            <ChatInput
-              value={inputValue}
-              onChange={setInputValue}
-              onSend={handleSend}
-              disabled={isTyping || isLoading || !isPuterInitialized}
-              isDeepThinkActive={isDeepThinkActive}
-              deepThinkModelName={deepThinkModelName}
-              codeAttachment={codeAttachment}
-              onRemoveCodeAttachment={onRemoveCodeAttachment}
-            />
-          </div>
-
-          {/* Right buttons */}
-          <div>
             <InputButtons
               onSend={handleSend}
               onMicInput={(text) => setInputValue(text)}
@@ -490,24 +470,57 @@ export const ChatContainer = forwardRef<HTMLDivElement, ChatContainerProps>(({
               onDeepThinkToggle={handleDeepThinkToggle}
             />
           </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="hidden sm:block">
+              <InputButtons
+                onNewChat={handleNewChat}
+                onHistory={() => setShowHistory(true)}
+                placement="left"
+              />
+            </div>
+
+            <div className="flex-1">
+              <ChatInput
+                value={inputValue}
+                onChange={setInputValue}
+                onSend={handleSend}
+                disabled={isTyping || isLoading || !isPuterInitialized}
+                isDeepThinkActive={isDeepThinkActive}
+                deepThinkModelName={deepThinkModelName}
+                codeAttachment={codeAttachment}
+                onRemoveCodeAttachment={onRemoveCodeAttachment}
+              />
+            </div>
+
+            <div className="hidden sm:block">
+              <InputButtons
+                onSend={handleSend}
+                onMicInput={(text) => setInputValue(text)}
+                sendDisabled={!inputValue.trim() && uploadedImages.length === 0 && !codeAttachment || isTyping || isLoading || !isPuterInitialized}
+                placement="right"
+                isDeepThinkActive={isDeepThinkActive}
+                onDeepThinkToggle={handleDeepThinkToggle}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Dialog remains the same */}
       <Dialog open={showHistory} onOpenChange={setShowHistory}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px] h-[80vh] sm:h-auto">
           <DialogHeader>
-            <DialogTitle>Chat History</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">Chat History</DialogTitle>
           </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto">
+          <div className="max-h-[calc(80vh-8rem)] sm:max-h-[60vh] overflow-y-auto">
             {chatHistory.map((chat) => (
               <button
                 key={chat.id}
-                className="w-full p-4 text-left hover:bg-accent rounded-lg mb-2 transition-colors"
+                className="w-full p-3 sm:p-4 text-left hover:bg-accent rounded-lg mb-2 transition-colors touch-manipulation"
                 onClick={() => handleLoadChat(chat.id)}
               >
-                <div className="font-medium">{chat.title}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="font-medium text-sm sm:text-base">{chat.title}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   {formatTimestamp(chat.timestamp)}
                 </div>
               </button>

@@ -4,6 +4,8 @@ import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Button } from "@/components/ui/button";
 import { Check, Copy } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface CodeEditorProps {
   value: string;
@@ -12,8 +14,11 @@ export interface CodeEditorProps {
   onLanguageChange?: (language: string) => void;
   theme?: 'vs-dark' | 'vs-light';
   height?: string;
+  minHeight?: string;
+  maxHeight?: string;
   readOnly?: boolean;
   className?: string;
+  options?: Monaco.editor.IStandaloneEditorConstructionOptions;
 }
 
 export interface LanguageConfig {
@@ -54,13 +59,17 @@ export const CodeEditor = memo(({
   onLanguageChange,
   theme = 'vs-dark',
   height = '500px',
+  minHeight,
+  maxHeight,
   readOnly = false,
-  className
+  className,
+  options: customOptions
 }: CodeEditorProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
+  const isMobile = useIsMobile();
 
   // Get language configuration
   const langConfig = useMemo(() => 
@@ -72,28 +81,37 @@ export const CodeEditor = memo(({
     minimap: { enabled: false },
     scrollBeyondLastLine: false,
     automaticLayout: true,
-    fontSize: 14,
+    fontSize: isMobile ? 12 : 14,
+    lineHeight: isMobile ? 1.4 : 1.5,
     wordWrap: 'on',
     readOnly,
-    lineNumbers: 'on' as const,
+    lineNumbers: isMobile ? 'off' : 'on',
     renderLineHighlight: 'all',
-    quickSuggestions: false,
-    contextmenu: false,
+    quickSuggestions: !isMobile && !readOnly,
+    contextmenu: !isMobile,
     tabSize: langConfig.tabSize,
-    formatOnPaste: langConfig.formatOnPaste,
-    formatOnType: langConfig.formatOnType,
-    suggestOnTriggerCharacters: !readOnly,
-    acceptSuggestionOnCommitCharacter: !readOnly,
+    formatOnPaste: langConfig.formatOnPaste && !isMobile,
+    formatOnType: langConfig.formatOnType && !isMobile,
+    suggestOnTriggerCharacters: !readOnly && !isMobile,
+    acceptSuggestionOnCommitCharacter: !readOnly && !isMobile,
     suggestSelection: 'first',
-    folding: true,
+    folding: !isMobile,
     scrollbar: {
       vertical: 'visible',
       horizontal: 'visible',
       useShadows: false,
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10,
+      verticalScrollbarSize: isMobile ? 4 : 10,
+      horizontalScrollbarSize: isMobile ? 4 : 10,
     },
-  }), [langConfig, readOnly]);
+    padding: {
+      top: isMobile ? 8 : 12,
+      bottom: isMobile ? 8 : 12,
+    },
+    overviewRulerBorder: false,
+    hideCursorInOverviewRuler: true,
+    renderFinalNewline: 'off',
+    ...customOptions,
+  }), [langConfig, readOnly, isMobile, customOptions]);
 
   // Handle editor mounting
   const handleEditorDidMount: OnMount = (editor, monaco) => {
@@ -101,13 +119,14 @@ export const CodeEditor = memo(({
     monacoRef.current = monaco;
     setIsLoading(false);
 
-    // Add keyboard shortcuts
-    editor.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, 
-      () => {
-        // Save functionality if needed
-      }
-    );
+    // Configure touch handling for mobile
+    if (isMobile) {
+      editor.updateOptions({
+        mouseWheelZoom: false,
+        renderWhitespace: 'none',
+        lineDecorationsWidth: 0,
+      });
+    }
 
     // Configure editor for specific languages
     if (language === 'typescript' || language === 'javascript') {
@@ -143,25 +162,45 @@ export const CodeEditor = memo(({
     onChange(value || '');
   };
 
-  // Format document on demand
-  const formatDocument = () => {
-    if (editorRef.current) {
-      editorRef.current.getAction('editor.action.formatDocument')?.run();
-    }
-  };
-
   // Error boundary
   if (!language || !SUPPORTED_LANGUAGES.some(lang => lang.value === language)) {
     console.error(`Unsupported language: ${language}`);
     return (
-      <div className="p-4 border rounded-md bg-destructive/10 text-destructive">
+      <div className="p-3 sm:p-4 border rounded-md bg-destructive/10 text-destructive text-sm">
         Unsupported language selected. Defaulting to TypeScript.
       </div>
     );
   }
 
   return (
-    <div className={`relative rounded-md border bg-background shadow-sm h-full ${className}`}>
+    <div style={{
+      minHeight: minHeight,
+      maxHeight: maxHeight,
+    }} className={cn(
+      "relative rounded-md border bg-background shadow-sm",
+      "overflow-hidden",
+      className
+    )}>
+      {/* Copy Button */}
+      <Button
+        variant="ghost"
+        size={isMobile ? "default" : "sm"}
+        onClick={handleCopy}
+        className={cn(
+          "absolute top-2 right-2 z-10",
+          "bg-background/80 backdrop-blur-sm",
+          "hover:bg-accent",
+          "touch-manipulation"
+        )}
+      >
+        {isCopied ? (
+          <Check className="h-4 w-4" />
+        ) : (
+          <Copy className="h-4 w-4" />
+        )}
+      </Button>
+
+      {/* Editor */}
       <Editor
         height={height}
         language={language}
@@ -169,7 +208,16 @@ export const CodeEditor = memo(({
         theme={theme}
         onChange={handleEditorChange}
         onMount={handleEditorDidMount}
-        loading={<div className="animate-pulse">Loading editor...</div>}
+        loading={
+          <div className={cn(
+            "flex items-center justify-center",
+            "h-full min-h-[100px]",
+            "text-sm text-muted-foreground",
+            "animate-pulse"
+          )}>
+            Loading editor...
+          </div>
+        }
         options={editorOptions}
       />
     </div>
