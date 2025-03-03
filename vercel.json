@@ -9,22 +9,13 @@
       }
     },
     {
-      "src": "server/index.ts", 
+      "src": "server/index.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
-    { 
-      "src": "/api/(.*)", 
-      "dest": "/server/index.ts" 
-    },
-    { 
-      "src": "/(.*\\.(js|css|ico|png|jpg|svg|json))", 
-      "dest": "/client/dist/$1" 
-    },
-    { 
-      "src": "/(.*)", 
-      "dest": "/client/dist/index.html" 
-    }
+    { "src": "/api/(.*)", "dest": "/server/index.ts" },
+    { "src": "/(.*)\\.(.+)", "dest": "/client/dist/$1.$2" },
+    { "src": "/(.*)", "dest": "/client/dist/index.html" }
   ]
 }
